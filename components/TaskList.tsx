@@ -16,8 +16,9 @@ export function TodoList({
   return (
     <section>
       <h2 className="text-sm font-semibold uppercase tracking-wider text-stone-500">Todo</h2>
+      {/* The list holds what comes after the Next Action shown above it. */}
       {tasks.length === 0 && (
-        <p className="mt-2 text-sm text-stone-400">No open tasks.</p>
+        <p className="mt-2 text-sm text-stone-400">Nothing else queued.</p>
       )}
       <div className="mt-2 space-y-4">
         {groups.map(([day, dayTasks]) => (
