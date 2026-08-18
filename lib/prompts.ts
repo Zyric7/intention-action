@@ -91,18 +91,21 @@ Return ONLY a JSON object with exactly this shape:
   "tasks": [
     ${TASK_SHAPE}
   ],
+  "completedTitles": string[],  // EXACT titles of remaining tasks the user reported as already finished
   "note": string
 }
 
 Rules for updating the project memory:
 - First decide what the user's message actually changes: project context (goal, deadline, requirements, constraints, preferences, success criteria), the remaining plan, or both. Update ONLY what the message affects; copy every other field verbatim from the input.
+- The "minutes until the deadline" figure you are given is computed from the CURRENT stored deadline. If the user's message changes the deadline, update "deadline" in project and schedule the remaining plan against the NEW deadline instead of that figure.
 - Preserve the user's original intention unless they explicitly change it.
+- Keep the memory internally consistent: if a change makes another field's text stale (e.g. a constraint that restates the old deadline), update that text too.
 - Never pretend uncertain information is known.
 
 Rules for the remaining plan:
 - "tasks" is the complete replacement for the REMAINING (not yet completed) plan only. Never include completed work — it is preserved automatically.
 - Avoid rebuilding the plan unnecessarily: keep remaining tasks that are unaffected by the change (same title, estimate, reason), adjusting only their order and planned times when needed.
-- If the user reports work as already done, remove it from the remaining plan and mention it in "note".
+- If the user reports a remaining task as already finished, put its EXACT title (copied verbatim from the input) in "completedTitles" and leave it out of "tasks" — it will be moved to Done automatically. Never list the same task in both. Mention it in "note".
 ${PLAN_RULES}
 
 Rules for "note":
@@ -118,7 +121,7 @@ export function updateUser(
   minutesToDeadline: number
 ): string {
   return `Current date and time: ${nowIso}
-Minutes until the deadline: ${minutesToDeadline}
+Minutes until the current (pre-update) deadline: ${minutesToDeadline}
 
 Project context:
 ${projectJson}

@@ -9,7 +9,7 @@ import { applyProjectUpdate } from "@/lib/ai-client";
 // Completed tasks are always preserved.
 export default function UpdateBox() {
   const [text, setText] = useState("");
-  const { aiBusy, aiError, lastChangeNote, setAiBusy, setAiError, applyUpdateResult } =
+  const { aiBusy, aiError, lastChangeNote, setAiBusy, setAiError, applyUpdateResult, completeTask } =
     useAppStore();
   const project = useAppStore((s) => s.project);
   const tasks = useAppStore((s) => s.tasks);
@@ -19,6 +19,9 @@ export default function UpdateBox() {
     setAiBusy("update");
     try {
       const result = await applyProjectUpdate(text.trim(), project, tasks);
+      // Mark reported-as-finished tasks completed first so applyUpdateResult
+      // (which preserves all completed tasks) carries them into Done.
+      result.completedTaskIds.forEach(completeTask);
       applyUpdateResult(result.project, result.pendingTasks, result.note);
       setText("");
     } catch (err) {

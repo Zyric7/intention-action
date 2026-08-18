@@ -6,6 +6,8 @@ import type { Project, ProjectDraft, TaskDraft } from "./types";
 const str = (v: unknown, fallback = "") => (typeof v === "string" ? v.trim() : fallback);
 const list = (v: unknown) =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim() !== "") : null;
+
+export const coerceStringList = (v: unknown): string[] => list(v) ?? [];
 const validIso = (v: unknown) => {
   const s = str(v);
   return s && !isNaN(new Date(s).getTime()) ? s : null;

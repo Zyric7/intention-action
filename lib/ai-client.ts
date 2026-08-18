@@ -29,6 +29,9 @@ export async function generatePlan(project: Project): Promise<Task[]> {
 export interface UpdateResult {
   project: Project;
   pendingTasks: Task[];
+  // Existing pending tasks the user reported as finished in the update
+  // message; the caller marks them completed so they move to Done.
+  completedTaskIds: string[];
   note: string;
 }
 
@@ -55,14 +58,22 @@ export async function applyProjectUpdate(
       reason: t.reason,
     }));
 
-  const data = await post<{ project: ProjectDraft; tasks: TaskDraft[]; note: string }>(
-    "/api/update",
-    { update: message, project, completed, pending, now: nowWithOffset() }
-  );
+  const data = await post<{
+    project: ProjectDraft;
+    tasks: TaskDraft[];
+    completedTitles?: string[];
+    note: string;
+  }>("/api/update", { update: message, project, completed, pending, now: nowWithOffset() });
+
+  const reported = (data.completedTitles ?? []).map((t) => t.trim().toLowerCase());
+  const completedTaskIds = allTasks
+    .filter((t) => t.status === "pending" && reported.includes(t.title.trim().toLowerCase()))
+    .map((t) => t.id);
 
   const stamp = new Date().toISOString();
   return {
     project: { ...data.project, id: project.id, createdAt: project.createdAt, updatedAt: stamp },
+    completedTaskIds,
     pendingTasks: data.tasks.map((t) => ({
       ...t,
       id: crypto.randomUUID(),
