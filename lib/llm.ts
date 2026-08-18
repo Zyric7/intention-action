@@ -12,21 +12,30 @@ export async function completeJson(system: string, user: string): Promise<unknow
     throw new Error("DASHSCOPE_API_KEY is not set. Add it to .env.local and restart the dev server.");
   }
 
-  const res = await fetch(`${BASE_URL}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${key}`,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      response_format: { type: "json_object" },
-    }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        response_format: { type: "json_object" },
+      }),
+      signal: AbortSignal.timeout(60_000),
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new Error("The AI took too long to respond. Please try again.");
+    }
+    throw new Error("Could not reach the AI service. Check your network and try again.");
+  }
 
   if (!res.ok) {
     const body = await res.text();
