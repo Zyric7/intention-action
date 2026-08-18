@@ -130,8 +130,10 @@ function WorkScreen() {
         {feasibility.fits ? "" : " — this plan does not fit. Update it below."}
       </p>
 
-      <div className="mt-6 grid gap-8 md:grid-cols-[1fr_320px]">
-        <div className="space-y-8">
+      {/* minmax(0,1fr) + min-w-0: long unbroken task text must wrap, not
+          stretch the track and break the page proportions. */}
+      <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0 space-y-8">
           <NextAction task={next} onComplete={completeTask} />
           <UpdateBox />
           {/* Next Action is todo[0]; the list below shows what comes after. */}

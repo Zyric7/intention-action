@@ -32,7 +32,7 @@ export default function NextAction({
       <h2 className="text-xs font-semibold uppercase tracking-wider text-amber-400">
         Do this now
       </h2>
-      <p className="mt-2 text-xl font-semibold">{task.title}</p>
+      <p className="mt-2 break-words text-xl font-semibold">{task.title}</p>
       <p className="mt-1 text-sm text-stone-300">
         {formatMinutes(task.estimatedMinutes)}
         {task.plannedStart && (
@@ -43,7 +43,7 @@ export default function NextAction({
         )}
       </p>
       {task.reason && (
-        <p className="mt-3 border-l-2 border-stone-600 pl-3 text-sm text-stone-300">
+        <p className="mt-3 break-words border-l-2 border-stone-600 pl-3 text-sm text-stone-300">
           {task.reason}
         </p>
       )}
