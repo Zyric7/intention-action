@@ -35,6 +35,9 @@ export interface Task {
   completedAt?: string;
 }
 
+// What AI planning produces; the client adds id, projectId, status, createdAt.
+export type TaskDraft = Omit<Task, "id" | "projectId" | "status" | "createdAt" | "completedAt">;
+
 // App phases: intention input → confirm AI understanding → working loop.
 export type Phase = "intention" | "confirm" | "working";
 

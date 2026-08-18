@@ -1,6 +1,6 @@
 // Client-side wrappers for the AI API routes.
 
-import type { Project, ProjectDraft } from "./types";
+import type { Project, ProjectDraft, Task, TaskDraft } from "./types";
 
 export async function extractProject(intention: string): Promise<Project> {
   const draft = await post<ProjectDraft>("/api/extract", {
@@ -9,6 +9,21 @@ export async function extractProject(intention: string): Promise<Project> {
   });
   const stamp = new Date().toISOString();
   return { ...draft, id: crypto.randomUUID(), createdAt: stamp, updatedAt: stamp };
+}
+
+export async function generatePlan(project: Project): Promise<Task[]> {
+  const { tasks } = await post<{ tasks: TaskDraft[] }>("/api/plan", {
+    project,
+    now: nowWithOffset(),
+  });
+  const stamp = new Date().toISOString();
+  return tasks.map((t) => ({
+    ...t,
+    id: crypto.randomUUID(),
+    projectId: project.id,
+    status: "pending" as const,
+    createdAt: stamp,
+  }));
 }
 
 async function post<T>(url: string, body: unknown): Promise<T> {

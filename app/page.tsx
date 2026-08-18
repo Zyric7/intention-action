@@ -8,7 +8,7 @@ import {
   useHasHydrated,
 } from "@/lib/store";
 import { assessFeasibility, formatDeadline, formatMinutes } from "@/lib/time";
-import { mockPlan } from "@/lib/mock";
+import { generatePlan } from "@/lib/ai-client";
 import IntentionInput from "@/components/IntentionInput";
 import ProjectEditor from "@/components/ProjectEditor";
 import NextAction from "@/components/NextAction";
@@ -47,7 +47,7 @@ function ConfirmScreen() {
     if (aiBusy) return;
     setAiBusy("plan");
     try {
-      const tasks = await mockPlan(draft); // → /api/plan in Step 4
+      const tasks = await generatePlan(draft);
       confirmDraft();
       setTasks(tasks);
     } catch (err) {
