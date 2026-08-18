@@ -31,6 +31,50 @@ export function formatMinutes(totalMinutes: number): string {
   return `${sign}${h}h ${m}m`;
 }
 
+const pad = (n: number) => String(n).padStart(2, "0");
+
+// For <input type="datetime-local"> round-tripping.
+export function isoToLocalInput(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function localInputToIso(value: string): string {
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? "" : d.toISOString();
+}
+
+export function formatClock(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function formatTimeRange(startIso?: string, endIso?: string): string {
+  if (!startIso) return "";
+  const start = formatClock(startIso);
+  const end = endIso ? formatClock(endIso) : "";
+  return end ? `${start}–${end}` : start;
+}
+
+export function formatDeadline(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return `${dayLabel(iso)} ${formatClock(iso)}`;
+}
+
+// "Today", "Tomorrow", or a short local date.
+export function dayLabel(iso: string, now: Date = new Date()): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const startOfDay = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diffDays = Math.round((startOfDay(d) - startOfDay(now)) / 86400000);
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Tomorrow";
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
 export interface Feasibility {
   minutesToDeadline: number;
   pendingMinutes: number;
