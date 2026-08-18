@@ -51,7 +51,7 @@ Return ONLY a JSON object with exactly this shape:
 Rules:
 - REALITY OVER IDEAL PLANS. Generate the most useful achievable plan, not the most complete one. Prefer fewer, clearer tasks — usually 4 to 8. Never pad with unnecessary work.
 - The total estimated time must fit comfortably between now and the deadline: leave at least 20% slack, and only schedule within plausible waking hours (roughly 09:00–23:00 local time) unless the deadline forces otherwise.
-- If everything the project asks for cannot realistically fit, cut or shrink the least essential items and say what you dropped in the affected task's "reason" or by omission — do not compress estimates to pretend it fits.
+- If everything the project asks for cannot realistically fit, cut or shrink the least essential items — and explicitly state every cut in the "reason" of the most relevant remaining task (e.g. "Dropped the calendar view: not achievable before the deadline"). Never drop scope silently. Do not compress estimates to pretend it fits.
 - Order tasks by execution order, respecting dependencies. The FIRST task is the user's next action: make it concrete, small (≤45 minutes if possible), and startable right now.
 - Planned times must be sequential and non-overlapping, starting no earlier than now, with short breaks between tasks.
 - Respect every requirement, constraint, and preference in the project context.
