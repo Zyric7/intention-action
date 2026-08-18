@@ -2,25 +2,30 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/lib/store";
+import { applyProjectUpdate } from "@/lib/ai-client";
 
 // "Update reality": new requirements, constraints, or progress in natural
-// language. Wired to /api/update (memory update + re-plan) on Day 2.
+// language → project memory updates and the remaining plan is regenerated.
+// Completed tasks are always preserved.
 export default function UpdateBox() {
   const [text, setText] = useState("");
-  const { aiBusy, lastChangeNote } = useAppStore();
-  const setNote = useAppStore((s) => s.applyUpdateResult);
+  const { aiBusy, aiError, lastChangeNote, setAiBusy, setAiError, applyUpdateResult } =
+    useAppStore();
   const project = useAppStore((s) => s.project);
   const tasks = useAppStore((s) => s.tasks);
 
-  const submit = () => {
+  const submit = async () => {
     if (!text.trim() || aiBusy || !project) return;
-    // Step 2 stub — real AI update + re-plan lands on Day 2.
-    setNote(
-      project,
-      tasks.filter((t) => t.status === "pending"),
-      `Noted: “${text.trim()}” — memory update and re-planning will be wired on Day 2.`
-    );
-    setText("");
+    setAiBusy("update");
+    try {
+      const result = await applyProjectUpdate(text.trim(), project, tasks);
+      applyUpdateResult(result.project, result.pendingTasks, result.note);
+      setText("");
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : "Update failed. Please try again.");
+      return;
+    }
+    setAiBusy(null);
   };
 
   return (
@@ -35,6 +40,7 @@ export default function UpdateBox() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}
+          disabled={aiBusy === "update"}
         />
         <button
           type="button"
@@ -45,7 +51,8 @@ export default function UpdateBox() {
           {aiBusy === "update" ? "Re-planning…" : "Update plan"}
         </button>
       </div>
-      {lastChangeNote && (
+      {aiError && <p className="mt-2 text-xs text-red-600">{aiError}</p>}
+      {lastChangeNote && !aiError && (
         <p className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-800 ring-1 ring-amber-200">
           {lastChangeNote}
         </p>

@@ -26,6 +26,54 @@ export async function generatePlan(project: Project): Promise<Task[]> {
   }));
 }
 
+export interface UpdateResult {
+  project: Project;
+  pendingTasks: Task[];
+  note: string;
+}
+
+// "Update reality": sends the change plus current memory and task state;
+// returns updated memory and the replacement remaining plan. Completed tasks
+// never leave the client's task collection.
+export async function applyProjectUpdate(
+  message: string,
+  project: Project,
+  allTasks: Task[]
+): Promise<UpdateResult> {
+  const completed = allTasks
+    .filter((t) => t.status === "completed")
+    .map((t) => ({ title: t.title, estimatedMinutes: t.estimatedMinutes }));
+  const pending = allTasks
+    .filter((t) => t.status === "pending")
+    .sort((a, b) => a.order - b.order)
+    .map((t) => ({
+      title: t.title,
+      description: t.description,
+      estimatedMinutes: t.estimatedMinutes,
+      plannedStart: t.plannedStart,
+      plannedEnd: t.plannedEnd,
+      reason: t.reason,
+    }));
+
+  const data = await post<{ project: ProjectDraft; tasks: TaskDraft[]; note: string }>(
+    "/api/update",
+    { update: message, project, completed, pending, now: nowWithOffset() }
+  );
+
+  const stamp = new Date().toISOString();
+  return {
+    project: { ...data.project, id: project.id, createdAt: project.createdAt, updatedAt: stamp },
+    pendingTasks: data.tasks.map((t) => ({
+      ...t,
+      id: crypto.randomUUID(),
+      projectId: project.id,
+      status: "pending" as const,
+      createdAt: stamp,
+    })),
+    note: data.note,
+  };
+}
+
 async function post<T>(url: string, body: unknown): Promise<T> {
   let res: Response;
   try {
