@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/lib/store";
-import { mockExtract } from "@/lib/mock";
+import { extractProject } from "@/lib/ai-client";
 
 // Phase 1: the user describes what they want to achieve in natural language.
 export default function IntentionInput() {
@@ -13,7 +13,7 @@ export default function IntentionInput() {
     if (!text.trim() || aiBusy) return;
     setAiBusy("extract");
     try {
-      const draft = await mockExtract(text); // → /api/extract in Step 3
+      const draft = await extractProject(text);
       setDraftProject(draft);
     } catch (err) {
       setAiError(err instanceof Error ? err.message : "Something went wrong. Please try again.");

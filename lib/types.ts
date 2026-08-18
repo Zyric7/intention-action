@@ -14,6 +14,9 @@ export interface Project {
   updatedAt: string;
 }
 
+// What AI extraction produces; the client adds id and timestamps.
+export type ProjectDraft = Omit<Project, "id" | "createdAt" | "updatedAt">;
+
 export type TaskStatus = "pending" | "completed";
 
 export interface Task {
