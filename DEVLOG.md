@@ -54,3 +54,16 @@ Intention Action is built in an AI-assisted workflow. This log records the meani
   existing pending tasks untouched via an explicit planChanged contract —
   re-planning happens only when the plan actually changed.
 - Added this development log, rendered in-app at /devlog via a footer link.
+- Deployed to Vercel as a private demo at intention-action.vercel.app:
+  functions in the hkg1 region, 60s max duration for LLM calls, keys held
+  server-side as sensitive environment variables. Debugging production
+  failures found the real blocker was stray whitespace in environment values
+  entered via piped stdin — an invalid Authorization header or URL makes
+  fetch fail instantly, convincingly mimicking a network block. The client
+  now trims all configuration values.
+- AI provider switched from DashScope to SiliconFlow
+  (deepseek-ai/DeepSeek-V4-Flash): the DashScope key is China-region-locked
+  (rejected by the international endpoint) while the demo runs on overseas
+  serverless infrastructure. Thinking mode is disabled — same JSON contract
+  at roughly 10x lower latency (extraction 59s → 10s). The full workflow
+  (extraction, planning, chat, update/re-plan) verified on production.
