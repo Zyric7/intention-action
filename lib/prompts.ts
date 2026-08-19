@@ -34,8 +34,10 @@ Extract the structured project information as JSON.`;
 
 // Shared planning rules — used for both the initial plan and re-planning so
 // the two can never drift apart.
-const PLAN_RULES = `- REALITY OVER IDEAL PLANS. Generate the most useful achievable plan, not the most complete one. Prefer fewer, clearer tasks — usually 4 to 8. Never pad with unnecessary work.
+const PLAN_RULES = `- REALITY OVER IDEAL PLANS. Generate the most useful achievable plan, not the most complete one. The number and structure of tasks follow from the goal itself — no artificial size limit, and no padding with unnecessary work.
+- Every task must clear the activation-cost bar: specific, startable from its own wording without the user needing to ask "how do I do this?", and sized around ONE concrete outcome. Split anything that bundles several outcomes ("polish and deploy" is two tasks). Name the real first step, not the topic ("Write the field lists for the Project and Task models", not "Define data model").
 - Order tasks by execution order, respecting dependencies. The FIRST task is the user's next action: make it concrete, small, and startable right now.
+- "stage": for larger or longer-term goals, divide the work into a few reasonably-sized stages or categories and set every task's "stage" to its stage name — short names, identical spelling within a stage, stages appearing in execution order. For small goals that need no staging, set "stage" to null on every task.
 - "estimatedMinutes" is a rough estimate, included ONLY when it is genuinely meaningful; otherwise null. Never fabricate precision.
 - If the project has NO deadline or time constraint: "plannedStart" and "plannedEnd" must be null for every task, and you must not invent time pressure — choose and order tasks by what is most reasonable to do next, not by fitting a schedule. In this case "estimatedMinutes" should also usually be null: include one only when knowing the duration genuinely helps the user decide (a 10-minute errand vs a deep work session), never as a routine label on every task.
 - If the project HAS a deadline or time constraint: EVERY task must have "plannedStart" and "plannedEnd" (never null in this case). The total estimated time must fit comfortably before the deadline (leave at least 20% slack), schedule only within plausible waking hours (roughly 09:00–23:00 local time) unless the deadline forces otherwise, and planned times must be sequential and non-overlapping, starting no earlier than now, with short breaks between tasks.
@@ -45,8 +47,9 @@ const PLAN_RULES = `- REALITY OVER IDEAL PLANS. Generate the most useful achieva
 - Write all text in the same language as the project context.`;
 
 const TASK_SHAPE = `{
-      "title": string,               // specific, small enough to start immediately
+      "title": string,               // specific, one concrete outcome, startable from its wording alone
       "description": string,         // one sentence of concrete guidance ("" if the title says it all)
+      "stage": string | null,        // stage/category name for larger goals; null when the plan needs no stages
       "estimatedMinutes": number | null, // rough, only when meaningful; otherwise null
       "plannedStart": string | null, // ISO 8601 with offset; REQUIRED when the project has a deadline, null only when it has none
       "plannedEnd": string | null,   // same rule as plannedStart
@@ -118,7 +121,7 @@ Rules for updating the project memory:
 Rules for the remaining plan:
 - First decide "planChanged". Set it to false when the update affects only the project memory (e.g. a renamed title or clarified purpose) and every remaining task, its order, and its planned times can stay exactly as they are — the current remaining plan is then kept unchanged and "tasks" is ignored (return []). Set it to true whenever any remaining task must be added, removed, reworded, re-estimated, reordered, or rescheduled.
 - When "planChanged" is true, "tasks" is the complete replacement for the REMAINING (not yet completed) plan only. Never include completed work — it is preserved automatically.
-- Avoid rebuilding the plan unnecessarily: keep remaining tasks that are unaffected by the change (same title, estimate, reason), adjusting only their order and planned times when needed.
+- Avoid rebuilding the plan unnecessarily: keep remaining tasks that are unaffected by the change (same title, stage, estimate, reason), adjusting only their order and planned times when needed.
 - If the user reports a remaining task as already finished, put its EXACT title (copied verbatim from the input) in "completedTitles" and leave it out of "tasks" — it will be moved to Done automatically. Never list the same task in both. Mention it in "note".
 ${PLAN_RULES}
 

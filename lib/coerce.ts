@@ -65,6 +65,7 @@ export function coerceTaskDrafts(raw: unknown): TaskDraft[] {
         title,
         description: str(o.description) || undefined,
         order: i,
+        stage: str(o.stage) || undefined,
         // Genuinely optional — no fallback value; absent means "no estimate".
         estimatedMinutes:
           Number.isFinite(minutes) && minutes > 0 ? Math.round(minutes) : undefined,

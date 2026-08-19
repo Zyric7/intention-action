@@ -29,6 +29,7 @@ export interface Task {
   status: TaskStatus;
   // AI-assigned execution order; the first pending task by order is the Next Action.
   order: number;
+  stage?: string; // groups the tasks of larger goals into stages/categories
   estimatedMinutes?: number; // rough, only when meaningful — no fallback value
   plannedStart?: string; // ISO datetime, only for time-bound projects
   plannedEnd?: string;

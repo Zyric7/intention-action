@@ -61,4 +61,10 @@ meaningful product changes, fixes, and decisions — not every commit.
   outcome. Plan size follows the goal instead of
   an artificial limit; larger goals are divided into stages of executable
   sub-actions, while the UI keeps emphasizing the Next Action and only a
-  few upcoming actions. PRODUCT.md updated; implementation to follow.
+  few upcoming actions. PRODUCT.md updated.
+- Action-design implemented and verified in both flows: the artificial
+  task-count limit is gone from the planning rules, tasks carry an optional
+  stage, and the Todo surface shows five upcoming actions with the rest one
+  click away, grouped by stage when stages exist. An open-ended book goal
+  produced staged, single-outcome, startable tasks with no time UI; a
+  deadline-bound goal still produced a fully scheduled, estimated plan.

@@ -53,6 +53,7 @@ export async function applyProjectUpdate(
     .map((t) => ({
       title: t.title,
       description: t.description,
+      stage: t.stage,
       estimatedMinutes: t.estimatedMinutes,
       plannedStart: t.plannedStart,
       plannedEnd: t.plannedEnd,

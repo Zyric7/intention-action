@@ -1,7 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import type { Task } from "@/lib/types";
 import { completedWorkMinutes, dayLabel, formatMinutes, formatTimeRange } from "@/lib/time";
+
+// The surface stays quiet: only this many upcoming tasks are shown below the
+// Next Action by default; larger plans stay accessible behind one click.
+const UPCOMING_VISIBLE = 5;
 
 // Todo and Done: two filtered views of the same task collection.
 
@@ -14,7 +19,9 @@ export function TodoList({
   onComplete: (id: string) => void;
   disabled?: boolean; // block completions while a chat/update is in flight
 }) {
-  const groups = groupByDay(tasks);
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? tasks : tasks.slice(0, UPCOMING_VISIBLE);
+  const groups = groupTasks(visible);
   return (
     <section>
       <h2 className="text-sm font-semibold uppercase tracking-wider text-stone-500">Todo</h2>
@@ -58,6 +65,15 @@ export function TodoList({
           </div>
         ))}
       </div>
+      {tasks.length > UPCOMING_VISIBLE && (
+        <button
+          type="button"
+          onClick={() => setShowAll(!showAll)}
+          className="mt-2 text-xs text-stone-400 hover:text-stone-600"
+        >
+          {showAll ? "Show fewer" : `Show all ${tasks.length} upcoming tasks`}
+        </button>
+      )}
     </section>
   );
 }
@@ -116,13 +132,18 @@ export function DoneList({
   );
 }
 
-function groupByDay(tasks: Task[]): Array<[string, Task[]]> {
+// Group consecutively by stage when the plan has stages, else by planned day
+// when scheduled, else flat ("" = no header).
+function groupTasks(tasks: Task[]): Array<[string, Task[]]> {
+  const hasStages = tasks.some((t) => t.stage);
+  const keyOf = (t: Task) =>
+    hasStages ? t.stage ?? "" : t.plannedStart ? dayLabel(t.plannedStart) : "";
   const groups: Array<[string, Task[]]> = [];
   for (const t of tasks) {
-    const day = t.plannedStart ? dayLabel(t.plannedStart) : ""; // "" = no header
+    const key = keyOf(t);
     const last = groups[groups.length - 1];
-    if (last && last[0] === day) last[1].push(t);
-    else groups.push([day, [t]]);
+    if (last && last[0] === key) last[1].push(t);
+    else groups.push([key, [t]]);
   }
   return groups;
 }
