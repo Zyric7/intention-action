@@ -57,7 +57,8 @@ meaningful product changes, fixes, and decisions — not every commit.
   the affected deployment, rotated the credential.
 - Product direction: actions are designed for real executability and low
   activation cost — specific, sequenced, startable from their own wording
-  without further "how?" questions. Plan size follows the goal instead of
+  without further "how?" questions, and sized around a single concrete
+  outcome. Plan size follows the goal instead of
   an artificial limit; larger goals are divided into stages of executable
   sub-actions, while the UI keeps emphasizing the Next Action and only a
   few upcoming actions. PRODUCT.md updated; implementation to follow.

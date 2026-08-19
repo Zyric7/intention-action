@@ -321,7 +321,7 @@ The plan should be realistic rather than exhaustive — but realistic means exec
 
 For larger or longer-term goals, the system should divide the work into reasonable stages or categories and break those down into executable sub-actions.
 
-Every action should be specific, reasonably sequenced, and low-cost to start: executable from its own wording, without the user needing to ask "how do I do this?"
+Every action should be specific, reasonably sequenced, and low-cost to start: executable from its own wording, without the user needing to ask "how do I do this?" Each action should produce one concrete outcome — work that bundles several outcomes is split.
 
 ---
 
@@ -337,7 +337,7 @@ The interface should prominently show:
 
 Example:
 
-> Define the Project and Task data models
+> Write the field lists for the Project and Task data models
 > Rough estimate (shown only when meaningful): ~25 minutes
 
 The user should not need to inspect a long plan to understand what to do next.
@@ -483,24 +483,24 @@ Example (time-bound project):
 ### Today
 
 **19:30–20:00**
-Define data model
+Write the field lists for the Project and Task data models
 
 **20:00–21:00**
-Build project state
+Create the app store with localStorage persistence
 
 **21:00–22:30**
-Implement AI intention extraction
+Write the intention-extraction prompt and its API route
 
 ### Tomorrow
 
 **10:00–12:00**
-Build Todo and Done flow
+Wire the Todo and Done lists to the task store
 
 **13:00–14:30**
-Implement re-planning
+Write the update prompt that regenerates the remaining plan
 
 **15:00–17:00**
-Polish and deploy
+Run the full demo flow once and fix what breaks
 
 The plan should account for the deadline when one exists, rather than simply generate a generic checklist.
 
@@ -516,7 +516,7 @@ Example:
 
 ### Do This Now
 
-**Define the Project data model**
+**Write the field list for the Project data model**
 
 Rough estimate (optional): ~25 minutes
 
@@ -555,9 +555,9 @@ Example:
 
 ### Today
 
-* Defined Project model
-* Built task state
-* Implemented intention extraction
+* Wrote the field lists for the Project and Task models
+* Created the app store with localStorage persistence
+* Wrote the intention-extraction prompt and route
 
 Summary:
 
@@ -631,7 +631,7 @@ Update only the relevant information.
 
 Generate a realistic set of executable Tasks from the Project context.
 
-The number and structure of tasks follow from the goal. Larger or longer-term goals are divided into stages or categories, each broken down into executable sub-actions. Every task must clear the activation-cost bar: startable from its own wording, without further "how?" questions.
+The number and structure of tasks follow from the goal. Larger or longer-term goals are divided into stages or categories, each broken down into executable sub-actions. Every task must clear the activation-cost bar: startable from its own wording, without further "how?" questions, and sized around a single concrete outcome — anything that bundles several outcomes is split.
 
 Planning should consider:
 
@@ -663,7 +663,7 @@ Avoid vague actions such as:
 
 Prefer:
 
-> Define the Project and Task schemas.
+> Write the field lists for the Project and Task schemas.
 
 ---
 
