@@ -74,3 +74,14 @@ Intention Action is built in an AI-assisted workflow. This log records the meani
   (extraction ~5.5s). SiliconFlow stays configured as a manual fallback only
   (point the DASHSCOPE_* variables at its endpoint); it is never used
   automatically. Full production workflow re-verified on DashScope.
+
+## 2026-08-20
+
+- Product direction: time is now an optional constraint, not a default part
+  of the experience. Precise estimates create false precision (especially
+  with AI-assisted work), projects may be long-term or open-ended with no
+  deadline at all, and the system must never invent a deadline the user did
+  not provide or clearly imply (the current 48-hour default is a bug).
+  PRODUCT.md updated across nine touchpoints (core concept, data models,
+  time system, views, AI responsibilities, MVP list, success criteria);
+  implementation to follow.

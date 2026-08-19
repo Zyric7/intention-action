@@ -66,7 +66,7 @@ The system then:
 1. Understands the goal.
 2. Extracts important requirements and constraints.
 3. Builds persistent project context.
-4. Determines what is realistically achievable within the available time.
+4. Determines what is reasonably achievable given the user's constraints — including time, when a time constraint exists.
 5. Generates an executable plan.
 6. Highlights the most useful next action.
 7. Tracks execution.
@@ -177,7 +177,7 @@ Suggested fields:
 * `title`
 * `goal`
 * `purpose`
-* `deadline`
+* `deadline` (optional — only when the user provides or clearly implies one)
 * `requirements`
 * `constraints`
 * `preferences`
@@ -233,9 +233,9 @@ Suggested fields:
 * `description`
 * `status`
 * `priority`
-* `estimatedMinutes`
-* `plannedStart`
-* `plannedEnd`
+* `estimatedMinutes` (optional — rough, only when meaningful)
+* `plannedStart` (optional — only for time-bound projects)
+* `plannedEnd` (optional — only for time-bound projects)
 * `reason`
 * `createdAt`
 * `completedAt`
@@ -313,8 +313,7 @@ The system generates tasks based on:
 * Project goal
 * Requirements
 * Constraints
-* Deadline
-* Available time
+* Deadline and available time (when a time constraint exists)
 * Existing progress
 
 The plan should be realistic rather than exhaustive.
@@ -336,7 +335,7 @@ The interface should prominently show:
 Example:
 
 > Define the Project and Task data models
-> Estimated time: 25 minutes
+> Rough estimate (shown only when meaningful): ~25 minutes
 
 The user should not need to inspect a long plan to understand what to do next.
 
@@ -376,7 +375,7 @@ The system should update the relevant project context or task state.
 
 The system recalculates the remaining plan based on:
 
-* Remaining time
+* Remaining time (when a time constraint exists)
 * Completed tasks
 * Unfinished tasks
 * New requirements
@@ -448,7 +447,7 @@ What the user ultimately wants to achieve.
 
 ### Deadline
 
-When the goal needs to be completed.
+When the goal needs to be completed. Shown only when the user has provided or clearly implied one.
 
 ### Requirements
 
@@ -474,9 +473,9 @@ The user should be able to correct these values.
 
 The Plan view shows the realistic execution plan.
 
-Tasks may be grouped by time.
+By default the plan is a simple ordered list. Tasks may be grouped by time when the project is genuinely time-bound.
 
-Example:
+Example (time-bound project):
 
 ### Today
 
@@ -500,7 +499,7 @@ Implement re-planning
 **15:00–17:00**
 Polish and deploy
 
-The plan should account for the deadline rather than simply generate a generic checklist.
+The plan should account for the deadline when one exists, rather than simply generate a generic checklist.
 
 ---
 
@@ -516,7 +515,7 @@ Example:
 
 **Define the Project data model**
 
-Estimated time: 25 minutes
+Rough estimate (optional): ~25 minutes
 
 Reason:
 
@@ -566,24 +565,22 @@ Advanced productivity analytics are not required.
 
 ## Time System
 
-Time is important because the product promises realistic plans.
+Time is an optional constraint, not a default part of the experience.
 
-For the MVP, the system should understand:
+The main planning question is what the user should reasonably do next — not how to fit everything into a schedule. Precise estimates are often unreliable, especially with AI-assisted work, and many projects are long-term or open-ended.
+
+When the user provides or clearly implies a time constraint, the system should understand:
 
 * Current date and time
 * Project deadline
-* Estimated task duration
-* Planned task start
-* Planned task end
+* Rough task estimates
 * Remaining available time
 
-The MVP does not require a full external calendar integration.
+and use them to answer: **Can this plan actually fit before the deadline?**
 
-A lightweight timeline or schedule is sufficient.
+When no time constraint exists, plans carry no schedule, and the system must never invent a deadline.
 
-The purpose of time information is to answer:
-
-**Can this plan actually fit before the deadline?**
+The MVP does not require a full external calendar integration. A lightweight timeline or schedule is sufficient for time-bound projects.
 
 ---
 
@@ -605,6 +602,8 @@ The AI should extract:
 * Constraints
 * Preferences
 * Success criteria
+
+Extract a deadline only when the user provides or clearly implies one. Never invent a deadline.
 
 ---
 
@@ -629,7 +628,7 @@ Generate a realistic set of executable Tasks from the Project context.
 
 Planning should consider:
 
-* Deadline
+* Deadline (when present)
 * Estimated effort
 * Dependencies
 * Existing progress
@@ -777,8 +776,8 @@ The two-day MVP should support the complete core loop:
 * User confirmation of AI understanding
 * Persistent Project memory
 * Generation of a realistic task plan
-* Estimated task durations
-* Basic time planning
+* Rough task estimates (when meaningful)
+* Basic time planning (when a time constraint exists)
 * Clear Next Action
 * Project-aware chat for working on the current task
 * Todo
@@ -810,7 +809,7 @@ The MVP is successful if a user can:
 
 1. Open the application.
 2. Describe a vague goal in natural language.
-3. Provide a deadline and relevant requirements.
+3. Optionally provide a deadline and any relevant requirements.
 4. See what the AI understands about the goal.
 5. Correct the AI if necessary.
 6. Generate a realistic plan.
