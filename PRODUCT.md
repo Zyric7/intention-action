@@ -233,6 +233,7 @@ Suggested fields:
 * `description`
 * `status`
 * `priority`
+* `stage` (optional — groups the tasks of larger goals into stages/categories)
 * `estimatedMinutes` (optional — rough, only when meaningful)
 * `plannedStart` (optional — only for time-bound projects)
 * `plannedEnd` (optional — only for time-bound projects)
@@ -316,9 +317,11 @@ The system generates tasks based on:
 * Deadline and available time (when a time constraint exists)
 * Existing progress
 
-The plan should be realistic rather than exhaustive.
+The plan should be realistic rather than exhaustive — but realistic means executable, not few. The number and structure of actions should follow from the goal itself, never from an artificial size limit.
 
-The AI should prefer a smaller achievable plan over a large ideal plan.
+For larger or longer-term goals, the system should divide the work into reasonable stages or categories and break those down into executable sub-actions.
+
+Every action should be specific, reasonably sequenced, and low-cost to start: executable from its own wording, without the user needing to ask "how do I do this?"
 
 ---
 
@@ -473,7 +476,7 @@ The user should be able to correct these values.
 
 The Plan view shows the realistic execution plan.
 
-By default the plan is a simple ordered list. Tasks may be grouped by time when the project is genuinely time-bound.
+By default the plan is a simple ordered list. Tasks may be grouped by stage for larger goals, or by time when the project is genuinely time-bound.
 
 Example (time-bound project):
 
@@ -528,6 +531,8 @@ The reason should be short and useful.
 ## 5. Todo
 
 Todo contains unfinished execution tasks.
+
+The surface emphasizes the Next Action and a small number of relevant upcoming actions; the rest of a larger plan stays accessible without crowding the screen.
 
 Each task may display:
 
@@ -626,6 +631,8 @@ Update only the relevant information.
 
 Generate a realistic set of executable Tasks from the Project context.
 
+The number and structure of tasks follow from the goal. Larger or longer-term goals are divided into stages or categories, each broken down into executable sub-actions. Every task must clear the activation-cost bar: startable from its own wording, without further "how?" questions.
+
 Planning should consider:
 
 * Deadline (when present)
@@ -646,6 +653,7 @@ The next action should be:
 
 * Specific
 * Small enough to start immediately
+* Low activation cost — executable from its wording alone, without the user needing to ask "how do I do this?"
 * Relevant to the goal
 * Realistically completable
 
@@ -725,14 +733,16 @@ Project context is memory.
 
 ## Product Principle: Next Action Over Task Explosion
 
-Generating more tasks does not necessarily help users make progress.
+Generating more tasks does not by itself help users make progress — but the answer is presentation discipline, not artificially small plans.
+
+The system may maintain a larger underlying plan when the goal warrants it. The interface stays calm by emphasizing the immediate Next Action and only a small number of relevant upcoming actions.
 
 The system should prefer:
 
-* Fewer tasks
-* Clearer tasks
+* Clearer tasks over more tasks
 * Smaller immediate actions
 * Explicit priorities
+* A quiet surface over an exhaustive list
 
 The user should always know what to do next.
 
@@ -776,6 +786,7 @@ The two-day MVP should support the complete core loop:
 * User confirmation of AI understanding
 * Persistent Project memory
 * Generation of a realistic task plan
+* Stage breakdown for larger goals (when the goal warrants it)
 * Rough task estimates (when meaningful)
 * Basic time planning (when a time constraint exists)
 * Clear Next Action
