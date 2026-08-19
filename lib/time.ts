@@ -12,13 +12,13 @@ export function minutesUntilDeadline(deadlineIso: string, nowIso: string): numbe
 export function pendingWorkMinutes(tasks: Task[]): number {
   return tasks
     .filter((t) => t.status === "pending")
-    .reduce((sum, t) => sum + t.estimatedMinutes, 0);
+    .reduce((sum, t) => sum + (t.estimatedMinutes ?? 0), 0);
 }
 
 export function completedWorkMinutes(tasks: Task[]): number {
   return tasks
     .filter((t) => t.status === "completed")
-    .reduce((sum, t) => sum + t.estimatedMinutes, 0);
+    .reduce((sum, t) => sum + (t.estimatedMinutes ?? 0), 0);
 }
 
 export function formatMinutes(totalMinutes: number): string {

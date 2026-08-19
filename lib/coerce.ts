@@ -13,14 +13,15 @@ const validIso = (v: unknown) => {
   return s && !isNaN(new Date(s).getTime()) ? s : null;
 };
 
-// For /api/extract: coerce a fresh extraction, with a deadline fallback.
-export function coerceProjectDraft(raw: unknown, fallbackDeadlineIso: string): ProjectDraft {
+// For /api/extract: coerce a fresh extraction. No deadline fallback — the
+// system must never invent a deadline the user didn't provide or imply.
+export function coerceProjectDraft(raw: unknown): ProjectDraft {
   const o = (raw ?? {}) as Record<string, unknown>;
   return {
     title: str(o.title, "Untitled project"),
     goal: str(o.goal),
     purpose: str(o.purpose) || undefined,
-    deadline: validIso(o.deadline) ?? fallbackDeadlineIso,
+    deadline: validIso(o.deadline) ?? undefined,
     requirements: list(o.requirements) ?? [],
     constraints: list(o.constraints) ?? [],
     preferences: list(o.preferences) ?? [],
@@ -37,7 +38,12 @@ export function mergeProjectUpdate(existing: Project, raw: unknown): ProjectDraf
     title: str(o.title) || existing.title,
     goal: str(o.goal) || existing.goal,
     purpose: o.purpose === undefined ? existing.purpose : str(o.purpose) || undefined,
-    deadline: validIso(o.deadline) ?? existing.deadline,
+    // Explicit null or "" removes an existing deadline; a valid ISO replaces
+    // it; anything else (absent/garbled) keeps what the user already had.
+    deadline:
+      o.deadline === null || o.deadline === ""
+        ? undefined
+        : validIso(o.deadline) ?? existing.deadline,
     requirements: list(o.requirements) ?? existing.requirements,
     constraints: list(o.constraints) ?? existing.constraints,
     preferences: list(o.preferences) ?? existing.preferences,
@@ -59,7 +65,9 @@ export function coerceTaskDrafts(raw: unknown): TaskDraft[] {
         title,
         description: str(o.description) || undefined,
         order: i,
-        estimatedMinutes: Number.isFinite(minutes) && minutes > 0 ? Math.round(minutes) : 30,
+        // Genuinely optional — no fallback value; absent means "no estimate".
+        estimatedMinutes:
+          Number.isFinite(minutes) && minutes > 0 ? Math.round(minutes) : undefined,
         plannedStart: validIso(o.plannedStart) ?? undefined,
         plannedEnd: validIso(o.plannedEnd) ?? undefined,
         reason: str(o.reason) || undefined,

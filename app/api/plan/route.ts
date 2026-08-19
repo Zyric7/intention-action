@@ -18,19 +18,24 @@ export async function POST(req: Request) {
   } catch {
     // fall through to validation error
   }
-  const deadline =
-    project && typeof (project as Record<string, unknown>).deadline === "string"
-      ? ((project as Record<string, unknown>).deadline as string)
-      : "";
-  if (!project || !deadline) {
-    return NextResponse.json({ error: "project with a deadline is required" }, { status: 400 });
+  if (!project) {
+    return NextResponse.json({ error: "project is required" }, { status: 400 });
   }
   if (!now) now = new Date().toISOString();
+  // A deadline is optional; when absent, the prompt forbids scheduling.
+  const deadline =
+    typeof (project as Record<string, unknown>).deadline === "string"
+      ? ((project as Record<string, unknown>).deadline as string)
+      : null;
 
   try {
     const raw = await completeJson(
       PLAN_SYSTEM,
-      planUser(JSON.stringify(project, null, 2), now, minutesBetween(now, deadline))
+      planUser(
+        JSON.stringify(project, null, 2),
+        now,
+        deadline ? minutesBetween(now, deadline) : null
+      )
     );
     const tasks = coerceTaskDrafts(raw);
     if (tasks.length === 0) {

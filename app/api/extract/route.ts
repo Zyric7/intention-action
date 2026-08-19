@@ -24,8 +24,7 @@ export async function POST(req: Request) {
 
   try {
     const raw = await completeJson(EXTRACT_SYSTEM, extractUser(intention, now));
-    const fallbackDeadline = new Date(new Date(now).getTime() + 48 * 60 * 60 * 1000).toISOString();
-    return NextResponse.json(coerceProjectDraft(raw, fallbackDeadline));
+    return NextResponse.json(coerceProjectDraft(raw));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Extraction failed.";
     return NextResponse.json({ error: message }, { status: 502 });

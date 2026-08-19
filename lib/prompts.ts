@@ -7,7 +7,7 @@ Return ONLY a JSON object with exactly these fields:
   "title": string,            // short project name
   "goal": string,             // what the user ultimately wants to achieve
   "purpose": string,          // why it matters to them ("" if not stated or clearly implied)
-  "deadline": string,         // ISO 8601 datetime WITH timezone offset
+  "deadline": string | null,  // ISO 8601 datetime WITH timezone offset, or null when none was given
   "requirements": string[],   // things that must be included
   "constraints": string[],    // things that limit the solution (time, tech, scope)
   "preferences": string[],    // nice-to-haves, not mandatory
@@ -15,7 +15,7 @@ Return ONLY a JSON object with exactly these fields:
 }
 
 Rules:
-- Resolve relative deadlines ("in two days", "by Friday evening") against the current time you are given. If no time of day is stated, use 18:00. If no deadline is stated at all, use exactly 48 hours from the current time.
+- "deadline" is null unless the user provides or clearly implies one. NEVER invent a deadline and never default to any duration. When one is given, resolve relative expressions ("in two days", "by Friday evening") against the current time; if a date is given without a time of day, use 18:00.
 - Extract only what the user stated or clearly implied. Do not invent requirements, features, or criteria they never mentioned.
 - Keep every list short and concrete — quality over quantity. Empty arrays are fine.
 - Write all extracted text in the same language the user wrote in.
@@ -35,21 +35,22 @@ Extract the structured project information as JSON.`;
 // Shared planning rules — used for both the initial plan and re-planning so
 // the two can never drift apart.
 const PLAN_RULES = `- REALITY OVER IDEAL PLANS. Generate the most useful achievable plan, not the most complete one. Prefer fewer, clearer tasks — usually 4 to 8. Never pad with unnecessary work.
-- The total estimated time must fit comfortably between now and the deadline: leave at least 20% slack, and only schedule within plausible waking hours (roughly 09:00–23:00 local time) unless the deadline forces otherwise.
-- If everything the project asks for cannot realistically fit, cut or shrink the least essential items — and state every cut in the FIRST task's "reason" (e.g. "Note: dropped the calendar view — not achievable before the deadline"), because only the first task's reason is guaranteed to be visible to the user. Never drop scope silently. Do not compress estimates to pretend it fits.
-- Order tasks by execution order, respecting dependencies. The FIRST task is the user's next action: make it concrete, small (≤45 minutes if possible), and startable right now.
-- Planned times must be sequential and non-overlapping, starting no earlier than now, with short breaks between tasks.
+- Order tasks by execution order, respecting dependencies. The FIRST task is the user's next action: make it concrete, small, and startable right now.
+- "estimatedMinutes" is a rough estimate, included ONLY when it is genuinely meaningful; otherwise null. Never fabricate precision.
+- If the project has NO deadline or time constraint: "plannedStart" and "plannedEnd" must be null for every task, and you must not invent time pressure — choose and order tasks by what is most reasonable to do next, not by fitting a schedule.
+- If the project HAS a deadline or time constraint: EVERY task must have "plannedStart" and "plannedEnd" (never null in this case). The total estimated time must fit comfortably before the deadline (leave at least 20% slack), schedule only within plausible waking hours (roughly 09:00–23:00 local time) unless the deadline forces otherwise, and planned times must be sequential and non-overlapping, starting no earlier than now, with short breaks between tasks.
+- If everything the project asks for cannot realistically fit its time constraint, cut or shrink the least essential items — and state every cut in the FIRST task's "reason" (e.g. "Note: dropped the calendar view — not achievable before the deadline"), because only the first task's reason is guaranteed to be visible to the user. Never drop scope silently. Do not compress estimates to pretend it fits.
 - Respect every requirement, constraint, and preference in the project context.
-- Estimates should be honest, not optimistic.
+- Estimates, when given, should be honest, not optimistic.
 - Write all text in the same language as the project context.`;
 
 const TASK_SHAPE = `{
-      "title": string,           // specific, small enough to start immediately
-      "description": string,     // one sentence of concrete guidance ("" if the title says it all)
-      "estimatedMinutes": number,
-      "plannedStart": string,    // ISO 8601 datetime WITH timezone offset
-      "plannedEnd": string,      // plannedStart + estimatedMinutes
-      "reason": string           // short, useful: why this task, why in this position
+      "title": string,               // specific, small enough to start immediately
+      "description": string,         // one sentence of concrete guidance ("" if the title says it all)
+      "estimatedMinutes": number | null, // rough, only when meaningful; otherwise null
+      "plannedStart": string | null, // ISO 8601 with offset; REQUIRED when the project has a deadline, null only when it has none
+      "plannedEnd": string | null,   // same rule as plannedStart
+      "reason": string               // short, useful: why this task, why in this position
     }`;
 
 export const PLAN_SYSTEM = `You turn a structured project context into a realistic, executable action plan.
@@ -64,9 +65,19 @@ Return ONLY a JSON object with exactly this shape:
 Rules:
 ${PLAN_RULES}`;
 
-export function planUser(projectJson: string, nowIso: string, minutesToDeadline: number): string {
+function deadlineLine(minutesToDeadline: number | null): string {
+  return minutesToDeadline === null
+    ? "This project has NO deadline. Do not schedule tasks and do not invent time pressure."
+    : `Minutes until the deadline: ${minutesToDeadline}`;
+}
+
+export function planUser(
+  projectJson: string,
+  nowIso: string,
+  minutesToDeadline: number | null
+): string {
   return `Current date and time: ${nowIso}
-Minutes until the deadline: ${minutesToDeadline}
+${deadlineLine(minutesToDeadline)}
 
 Project context:
 ${projectJson}
@@ -82,7 +93,7 @@ Return ONLY a JSON object with exactly this shape:
     "title": string,
     "goal": string,
     "purpose": string,
-    "deadline": string,         // ISO 8601 datetime WITH timezone offset
+    "deadline": string | null,  // ISO 8601 with offset; null when the project has no deadline
     "requirements": string[],
     "constraints": string[],
     "preferences": string[],
@@ -98,7 +109,8 @@ Return ONLY a JSON object with exactly this shape:
 
 Rules for updating the project memory:
 - First decide what the user's message actually changes: project context (goal, deadline, requirements, constraints, preferences, success criteria), the remaining plan, or both. Update ONLY what the message affects; copy every other field verbatim from the input.
-- The "minutes until the deadline" figure you are given is computed from the CURRENT stored deadline. If the user's message changes the deadline, update "deadline" in project and schedule the remaining plan against the NEW deadline instead of that figure.
+- Any "minutes until the deadline" figure you are given is computed from the CURRENT stored deadline. If the user's message changes the deadline, update "deadline" in project and schedule the remaining plan against the NEW deadline instead of that figure.
+- If the user removes the deadline or says the project no longer has one, set "deadline" to null and remove all planned times from the remaining plan. Never invent a deadline the user did not provide or clearly imply.
 - Preserve the user's original intention unless they explicitly change it.
 - Keep the memory internally consistent: if a change makes another field's text stale (e.g. a constraint that restates the old deadline), update that text too.
 - Never pretend uncertain information is known.
@@ -141,12 +153,16 @@ export function chatContext(
   pendingTitles: string[],
   completedTitles: string[],
   nowIso: string,
-  minutesToDeadline: number
+  minutesToDeadline: number | null
 ): string {
   return `${CHAT_SYSTEM_BASE}
 
 Current date and time: ${nowIso}
-Minutes until the deadline: ${minutesToDeadline}
+${
+    minutesToDeadline === null
+      ? "This project has no deadline."
+      : `Minutes until the deadline: ${minutesToDeadline}`
+  }
 
 Project context (single source of truth):
 ${projectJson}
@@ -164,10 +180,14 @@ export function updateUser(
   completedJson: string,
   pendingJson: string,
   nowIso: string,
-  minutesToDeadline: number
+  minutesToDeadline: number | null
 ): string {
   return `Current date and time: ${nowIso}
-Minutes until the current (pre-update) deadline: ${minutesToDeadline}
+${
+    minutesToDeadline === null
+      ? "This project currently has NO deadline."
+      : `Minutes until the current (pre-update) deadline: ${minutesToDeadline}`
+  }
 
 Project context:
 ${projectJson}

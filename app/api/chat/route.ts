@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       pendingTitles,
       completedTitles,
       now,
-      minutesBetween(now, project.deadline)
+      project.deadline ? minutesBetween(now, project.deadline) : null
     );
     const raw = (await completeJson(system, messages)) as Record<string, unknown>;
     const reply = typeof raw?.reply === "string" ? raw.reply.trim() : "";

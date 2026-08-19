@@ -114,7 +114,10 @@ function WorkScreen() {
   const todo = selectTodo(tasks);
   const next = selectNextAction(tasks);
   const done = selectDone(tasks);
-  const feasibility = assessFeasibility(project.deadline, tasks, new Date().toISOString());
+  // Time is optional: feasibility only exists for time-bound projects.
+  const feasibility = project.deadline
+    ? assessFeasibility(project.deadline, tasks, new Date().toISOString())
+    : null;
 
   return (
     <main className="mx-auto max-w-5xl p-6 md:p-8">
@@ -132,14 +135,25 @@ function WorkScreen() {
         </button>
       </header>
 
-      <p
-        className={`mt-1 text-sm ${feasibility.fits ? "text-stone-500" : "text-red-600"}`}
-      >
-        Deadline {formatDeadline(project.deadline)} ·{" "}
-        {formatMinutes(feasibility.pendingMinutes)} of work planned,{" "}
-        {formatMinutes(feasibility.minutesToDeadline)} until deadline
-        {feasibility.fits ? "" : " — this plan does not fit. Update it below."}
-      </p>
+      {feasibility && project.deadline && (
+        <p
+          className={`mt-1 text-sm ${
+            feasibility.pendingMinutes > 0 && !feasibility.fits
+              ? "text-red-600"
+              : "text-stone-500"
+          }`}
+        >
+          Deadline {formatDeadline(project.deadline)}
+          {feasibility.pendingMinutes > 0 && (
+            <>
+              {" · ~"}
+              {formatMinutes(feasibility.pendingMinutes)} of work planned,{" "}
+              {formatMinutes(feasibility.minutesToDeadline)} until deadline
+              {feasibility.fits ? "" : " — this plan does not fit. Update it below."}
+            </>
+          )}
+        </p>
+      )}
 
       {/* minmax(0,1fr) + min-w-0: long unbroken task text must wrap, not
           stretch the track and break the page proportions. */}

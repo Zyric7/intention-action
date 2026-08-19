@@ -5,7 +5,9 @@ export interface Project {
   title: string;
   goal: string;
   purpose?: string;
-  deadline: string; // ISO datetime
+  // Optional: only when the user provides or clearly implies one. The system
+  // must never invent a deadline (PRODUCT.md: Time System).
+  deadline?: string; // ISO datetime
   requirements: string[];
   constraints: string[];
   preferences: string[];
@@ -27,8 +29,8 @@ export interface Task {
   status: TaskStatus;
   // AI-assigned execution order; the first pending task by order is the Next Action.
   order: number;
-  estimatedMinutes: number;
-  plannedStart?: string; // ISO datetime, AI-suggested, display-only
+  estimatedMinutes?: number; // rough, only when meaningful — no fallback value
+  plannedStart?: string; // ISO datetime, only for time-bound projects
   plannedEnd?: string;
   reason?: string;
   createdAt: string;

@@ -23,32 +23,37 @@ export function TodoList({
         <p className="mt-2 text-sm text-stone-400">Nothing else queued.</p>
       )}
       <div className="mt-2 space-y-4">
-        {groups.map(([day, dayTasks]) => (
-          <div key={day}>
-            <h3 className="text-xs font-medium text-stone-400">{day}</h3>
+        {groups.map(([day, dayTasks], gi) => (
+          <div key={`${day}-${gi}`}>
+            {/* Undated tasks get no day header — time stays out of the way. */}
+            {day && <h3 className="text-xs font-medium text-stone-400">{day}</h3>}
             <ul className="mt-1 space-y-1.5">
-              {dayTasks.map((t) => (
-                <li
-                  key={t.id}
-                  className="flex items-center gap-3 rounded-lg bg-white px-3 py-2.5 ring-1 ring-stone-200"
-                >
-                  <button
-                    type="button"
-                    aria-label={`Mark ${t.title} as done`}
-                    onClick={() => onComplete(t.id)}
-                    disabled={disabled}
-                    className="h-4 w-4 shrink-0 rounded-full border border-stone-300 transition-colors hover:border-emerald-500 hover:bg-emerald-50 disabled:opacity-40 disabled:hover:border-stone-300 disabled:hover:bg-transparent"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{t.title}</p>
-                    <p className="text-xs text-stone-400">
-                      {formatTimeRange(t.plannedStart, t.plannedEnd)}
-                      {t.plannedStart && " · "}
-                      {formatMinutes(t.estimatedMinutes)}
-                    </p>
-                  </div>
-                </li>
-              ))}
+              {dayTasks.map((t) => {
+                const meta = [
+                  t.plannedStart ? formatTimeRange(t.plannedStart, t.plannedEnd) : null,
+                  t.estimatedMinutes ? `~${formatMinutes(t.estimatedMinutes)}` : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ");
+                return (
+                  <li
+                    key={t.id}
+                    className="flex items-center gap-3 rounded-lg bg-white px-3 py-2.5 ring-1 ring-stone-200"
+                  >
+                    <button
+                      type="button"
+                      aria-label={`Mark ${t.title} as done`}
+                      onClick={() => onComplete(t.id)}
+                      disabled={disabled}
+                      className="h-4 w-4 shrink-0 rounded-full border border-stone-300 transition-colors hover:border-emerald-500 hover:bg-emerald-50 disabled:opacity-40 disabled:hover:border-stone-300 disabled:hover:bg-transparent"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">{t.title}</p>
+                      {meta && <p className="text-xs text-stone-400">{meta}</p>}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
@@ -101,8 +106,9 @@ export function DoneList({
             ))}
           </ul>
           <p className="mt-2 text-xs text-stone-400">
-            {tasks.length} task{tasks.length === 1 ? "" : "s"} completed ·{" "}
-            {formatMinutes(completedWorkMinutes(tasks))} estimated work completed
+            {tasks.length} task{tasks.length === 1 ? "" : "s"} completed
+            {completedWorkMinutes(tasks) > 0 &&
+              ` · ~${formatMinutes(completedWorkMinutes(tasks))} estimated work completed`}
           </p>
         </>
       )}
@@ -113,7 +119,7 @@ export function DoneList({
 function groupByDay(tasks: Task[]): Array<[string, Task[]]> {
   const groups: Array<[string, Task[]]> = [];
   for (const t of tasks) {
-    const day = t.plannedStart ? dayLabel(t.plannedStart) : "Unscheduled";
+    const day = t.plannedStart ? dayLabel(t.plannedStart) : ""; // "" = no header
     const last = groups[groups.length - 1];
     if (last && last[0] === day) last[1].push(t);
     else groups.push([day, [t]]);

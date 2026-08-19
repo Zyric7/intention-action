@@ -26,9 +26,9 @@ export async function POST(req: Request) {
   } catch {
     // fall through to validation error
   }
-  if (!update || !project || typeof project.deadline !== "string") {
+  if (!update || !project) {
     return NextResponse.json(
-      { error: "update message and project with a deadline are required" },
+      { error: "update message and project are required" },
       { status: 400 }
     );
   }
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         JSON.stringify(completed, null, 2),
         JSON.stringify(pending, null, 2),
         now,
-        minutesBetween(now, project.deadline)
+        project.deadline ? minutesBetween(now, project.deadline) : null
       )
     )) as Record<string, unknown>;
 

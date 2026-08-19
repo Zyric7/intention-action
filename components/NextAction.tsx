@@ -37,15 +37,19 @@ export default function NextAction({
         Do this now
       </h2>
       <p className="mt-2 break-words text-xl font-semibold">{task.title}</p>
-      <p className="mt-1 text-sm text-stone-300">
-        {formatMinutes(task.estimatedMinutes)}
-        {task.plannedStart && (
-          <>
-            {" · "}
-            {dayLabel(task.plannedStart)} {formatTimeRange(task.plannedStart, task.plannedEnd)}
-          </>
-        )}
-      </p>
+      {/* Time is optional: show the meta line only when there is real data. */}
+      {(task.estimatedMinutes || task.plannedStart) && (
+        <p className="mt-1 text-sm text-stone-300">
+          {[
+            task.estimatedMinutes ? `~${formatMinutes(task.estimatedMinutes)}` : null,
+            task.plannedStart
+              ? `${dayLabel(task.plannedStart)} ${formatTimeRange(task.plannedStart, task.plannedEnd)}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      )}
       {task.reason && (
         <p className="mt-3 break-words border-l-2 border-stone-600 pl-3 text-sm text-stone-300">
           {task.reason}

@@ -85,3 +85,16 @@ Intention Action is built in an AI-assisted workflow. This log records the meani
   PRODUCT.md updated across nine touchpoints (core concept, data models,
   time system, views, AI responsibilities, MVP list, success criteria);
   implementation to follow.
+- Optional-time implementation: deadline and estimatedMinutes are now truly
+  optional end to end. Extraction returns null instead of inventing a
+  48-hour deadline; plans for deadline-free projects carry no schedule and
+  no fabricated estimates (the 30-minute coercion fallback is gone); the
+  deadline, feasibility line, day groupings, and estimate labels render only
+  when the data exists. A deadline can be removed both by clearing the
+  editor field and by telling the update flow — planned times are dropped
+  with it. Verified live in both flows: a no-timeline intention produced an
+  unscheduled plan with no deadline anywhere, and the two-day demo intention
+  still produced a fully scheduled plan with feasibility (one prompt
+  tightening was needed: the model initially stopped scheduling even
+  deadline projects until planned times were made explicitly mandatory for
+  time-bound plans).

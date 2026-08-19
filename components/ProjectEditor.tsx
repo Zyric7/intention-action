@@ -51,12 +51,17 @@ export default function ProjectEditor({
       </div>
 
       <div>
-        <label className={label}>Deadline</label>
+        <label className={label}>Deadline (optional)</label>
         <input
           type="datetime-local"
           className={`${input} mt-1`}
-          value={isoToLocalInput(project.deadline)}
+          value={project.deadline ? isoToLocalInput(project.deadline) : ""}
           onChange={(e) => {
+            // Clearing the field removes the deadline entirely.
+            if (e.target.value === "") {
+              onEdit({ deadline: undefined });
+              return;
+            }
             const iso = localInputToIso(e.target.value);
             if (iso) onEdit({ deadline: iso });
           }}
