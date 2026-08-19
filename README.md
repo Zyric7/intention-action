@@ -14,8 +14,9 @@ the full product definition.
 ## Stack
 
 Next.js (App Router) · TypeScript · Tailwind · Zustand (localStorage
-persistence) · SiliconFlow (`deepseek-ai/DeepSeek-V4-Flash`) via four small
-API routes — no SDK, no database, no auth.
+persistence) · Alibaba Cloud DashScope (`qwen-plus`) via four small API
+routes — no SDK, no database, no auth. SiliconFlow works as a manual
+fallback by pointing the `DASHSCOPE_*` variables at its endpoint.
 
 ## Run it
 
@@ -26,9 +27,9 @@ npm install
 Create `.env.local`:
 
 ```
-SILICONFLOW_API_KEY=sk-...
-# optional: SILICONFLOW_BASE_URL (default https://api.siliconflow.cn/v1),
-#           SILICONFLOW_MODEL (default deepseek-ai/DeepSeek-V4-Flash)
+DASHSCOPE_API_KEY=sk-...
+# optional: DASHSCOPE_BASE_URL (default https://dashscope.aliyuncs.com/compatible-mode/v1),
+#           DASHSCOPE_MODEL (default qwen-plus)
 ```
 
 ```bash

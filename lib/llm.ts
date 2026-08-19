@@ -1,12 +1,16 @@
-// Server-side only: minimal SiliconFlow client via its OpenAI-compatible
-// endpoint. No SDK — one fetch, JSON mode, parsed result.
+// Server-side only: minimal DashScope (Alibaba Cloud Bailian) client via the
+// OpenAI-compatible endpoint. No SDK — one fetch, JSON mode, parsed result.
+//
+// Manual fallback: SiliconFlow (SILICONFLOW_* values kept in the local env
+// and in Vercel) — switch by pointing DASHSCOPE_BASE_URL / DASHSCOPE_API_KEY /
+// DASHSCOPE_MODEL at the SiliconFlow equivalents. Never switched automatically.
 
 // trim(): env values entered via shells/CLIs can carry stray whitespace; a
 // newline inside a header value or URL makes fetch throw instantly.
 const BASE_URL = (
-  process.env.SILICONFLOW_BASE_URL ?? "https://api.siliconflow.cn/v1"
+  process.env.DASHSCOPE_BASE_URL ?? "https://dashscope.aliyuncs.com/compatible-mode/v1"
 ).trim();
-const MODEL = (process.env.SILICONFLOW_MODEL ?? "deepseek-ai/DeepSeek-V4-Flash").trim();
+const MODEL = (process.env.DASHSCOPE_MODEL ?? "qwen-plus").trim();
 
 export type LlmMessage = { role: "user" | "assistant"; content: string };
 
@@ -14,9 +18,9 @@ export async function completeJson(
   system: string,
   user: string | LlmMessage[]
 ): Promise<unknown> {
-  const key = process.env.SILICONFLOW_API_KEY?.trim();
+  const key = process.env.DASHSCOPE_API_KEY?.trim();
   if (!key) {
-    throw new Error("SILICONFLOW_API_KEY is not set. Add it to .env.local and restart the dev server.");
+    throw new Error("DASHSCOPE_API_KEY is not set. Add it to .env.local and restart the dev server.");
   }
 
   let res: Response;
@@ -29,8 +33,8 @@ export async function completeJson(
       },
       body: JSON.stringify({
         model: MODEL,
-        // DeepSeek-V4-Flash is a reasoning model; thinking costs ~10x latency
-        // (observed 59s vs 5s) and our structured prompts don't need it.
+        // Hybrid reasoning models must not spend tokens thinking here: our
+        // structured prompts don't need it and it multiplies latency.
         enable_thinking: false,
         messages: [
           { role: "system", content: system },

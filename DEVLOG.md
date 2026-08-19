@@ -67,3 +67,10 @@ Intention Action is built in an AI-assisted workflow. This log records the meani
   serverless infrastructure. Thinking mode is disabled — same JSON contract
   at roughly 10x lower latency (extraction 59s → 10s). The full workflow
   (extraction, planning, chat, update/re-plan) verified on production.
+- Switched production back to DashScope (qwen-plus) once the whitespace root
+  cause was known. Region probing with clean values: DashScope rejects
+  Vercel's Hong Kong region outright (connect timeout), is intermittent from
+  Singapore, and is stable from US East — functions now run in iad1
+  (extraction ~5.5s). SiliconFlow stays configured as a manual fallback only
+  (point the DASHSCOPE_* variables at its endpoint); it is never used
+  automatically. Full production workflow re-verified on DashScope.
