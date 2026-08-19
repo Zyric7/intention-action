@@ -33,7 +33,8 @@ Intention Action is built in an AI-assisted workflow. This log records the meani
 - The second half of the core loop: /api/update takes new information
   ("deadline moved", "remove X", "I finished Y"), updates only the affected
   project memory, and regenerates only the remaining plan. Completed tasks
-  are preserved structurally — the server never sees them.
+  are preserved structurally — the server receives only their title/estimate
+  summaries, and its response can only replace the remaining plan.
 - Update edge cases fixed after review: malformed AI plans now fail without
   touching client state (an explicit empty plan stays valid); tasks reported
   as finished in an update move to Done instead of disappearing; a changed
