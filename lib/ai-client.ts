@@ -1,6 +1,6 @@
 // Client-side wrappers for the AI API routes.
 
-import type { Project, ProjectDraft, Task, TaskDraft } from "./types";
+import type { ChatMessage, Project, ProjectDraft, Task, TaskDraft } from "./types";
 
 export async function extractProject(intention: string): Promise<Project> {
   const draft = await post<ProjectDraft>("/api/extract", {
@@ -83,6 +83,35 @@ export async function applyProjectUpdate(
     })),
     note: data.note,
   };
+}
+
+// Project-aware chat: sends the recent transcript plus current project and
+// task state. A non-empty contextUpdate means the conversation established a
+// durable change — route it through applyProjectUpdate (the existing flow).
+export async function chatWithProject(
+  messages: ChatMessage[],
+  project: Project,
+  allTasks: Task[]
+): Promise<{ reply: string; contextUpdate: string }> {
+  const pending = allTasks
+    .filter((t) => t.status === "pending")
+    .sort((a, b) => a.order - b.order);
+  const next = pending[0] ?? null;
+  return post<{ reply: string; contextUpdate: string }>("/api/chat", {
+    messages: messages.slice(-20).map((m) => ({ role: m.role, content: m.content })),
+    project,
+    nextAction: next
+      ? {
+          title: next.title,
+          description: next.description,
+          estimatedMinutes: next.estimatedMinutes,
+          reason: next.reason,
+        }
+      : null,
+    pendingTitles: pending.slice(1).map((t) => t.title),
+    completedTitles: allTasks.filter((t) => t.status === "completed").map((t) => t.title),
+    now: nowWithOffset(),
+  });
 }
 
 async function post<T>(url: string, body: unknown): Promise<T> {

@@ -112,6 +112,50 @@ Rules for "note":
 - One or two short sentences stating exactly what changed in the memory and the plan (e.g. "Removed the calendar view from requirements; replanned the remaining 4 tasks into today's 3 available hours."). If the message changes nothing, say so.
 - Same language as the user's message.`;
 
+// The chat is a working copilot, not a memory writer: it answers and helps
+// directly, and only flags durable changes for the existing update flow.
+export const CHAT_SYSTEM_BASE = `You are the project copilot inside Intention Action. The user is working on the project described below; the current Next Action is what they are trying to do right now. Help them do the actual work: answer questions, draft content, weigh options, make the task concrete. Never ask them to re-explain the project — you already have its context.
+
+Return ONLY a JSON object with exactly this shape:
+{
+  "reply": string,          // your conversational answer, plain text
+  "contextUpdate": string   // "" almost always — see rules
+}
+
+Rules for "contextUpdate":
+- Leave it "" for questions, explanations, drafts, brainstorming, opinions, and proposals the user has not accepted. Most messages change nothing durable.
+- Set it ONLY when the conversation has established a durable new fact about the project: a decision made, work completed, or a requirement, constraint, preference, deadline, or scope change. The user stating it, or clearly accepting your proposal, counts; your proposal alone does not.
+- When set, write it as one or two short factual sentences in the user's own voice, as if typed into the update box (e.g. "Decided: no calendar in the MVP. The data model task is already finished."). It will be processed by the project's update system.
+
+Rules for "reply":
+- Be concrete and useful; prefer doing the work over describing how it could be done.
+- Keep replies reasonably short unless the task genuinely needs length.
+- Write in the same language the user is using.
+- Never pretend uncertain information is known.`;
+
+export function chatContext(
+  projectJson: string,
+  nextActionJson: string,
+  pendingTitles: string[],
+  completedTitles: string[],
+  nowIso: string,
+  minutesToDeadline: number
+): string {
+  return `${CHAT_SYSTEM_BASE}
+
+Current date and time: ${nowIso}
+Minutes until the deadline: ${minutesToDeadline}
+
+Project context (single source of truth):
+${projectJson}
+
+Current Next Action:
+${nextActionJson}
+
+Remaining tasks: ${pendingTitles.join("; ") || "(none)"}
+Completed tasks: ${completedTitles.join("; ") || "(none)"}`;
+}
+
 export function updateUser(
   message: string,
   projectJson: string,

@@ -6,7 +6,12 @@ const BASE_URL =
   "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MODEL = process.env.DASHSCOPE_MODEL ?? "qwen-plus";
 
-export async function completeJson(system: string, user: string): Promise<unknown> {
+export type LlmMessage = { role: "user" | "assistant"; content: string };
+
+export async function completeJson(
+  system: string,
+  user: string | LlmMessage[]
+): Promise<unknown> {
   const key = process.env.DASHSCOPE_API_KEY;
   if (!key) {
     throw new Error("DASHSCOPE_API_KEY is not set. Add it to .env.local and restart the dev server.");
@@ -24,7 +29,7 @@ export async function completeJson(system: string, user: string): Promise<unknow
         model: MODEL,
         messages: [
           { role: "system", content: system },
-          { role: "user", content: user },
+          ...(typeof user === "string" ? [{ role: "user", content: user }] : user),
         ],
         response_format: { type: "json_object" },
       }),

@@ -41,4 +41,13 @@ export type TaskDraft = Omit<Task, "id" | "projectId" | "status" | "createdAt" |
 // App phases: intention input → confirm AI understanding → working loop.
 export type Phase = "intention" | "confirm" | "working";
 
-export type AiOperation = "extract" | "plan" | "update";
+export type AiOperation = "extract" | "plan" | "update" | "chat";
+
+// Project-aware chat below the Next Action. The transcript is conversation,
+// not memory — the Project object stays the single source of truth.
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+}

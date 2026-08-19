@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useEffect, useState } from "react";
-import type { AiOperation, Phase, Project, Task } from "./types";
+import type { AiOperation, ChatMessage, Phase, Project, Task } from "./types";
 
 interface AppState {
   phase: Phase;
@@ -14,6 +14,9 @@ interface AppState {
   tasks: Task[];
   // AI's one-line summary of what the last context update changed (transient).
   lastChangeNote: string | null;
+  // Project-aware chat transcript. Continuous across task changes; only a
+  // full reset clears it. Conversation, not memory.
+  chatMessages: ChatMessage[];
   aiBusy: AiOperation | null;
   aiError: string | null;
 
@@ -27,6 +30,7 @@ interface AppState {
   // Applies an /api/update result: replaces project memory and all pending
   // tasks; completed tasks are always preserved untouched.
   applyUpdateResult: (project: Project, pendingTasks: Task[], note: string) => void;
+  addChatMessage: (msg: ChatMessage) => void;
   setAiBusy: (op: AiOperation | null) => void;
   setAiError: (message: string | null) => void;
   reset: () => void;
@@ -42,6 +46,7 @@ export const useAppStore = create<AppState>()(
       project: null,
       tasks: [],
       lastChangeNote: null,
+      chatMessages: [],
       aiBusy: null,
       aiError: null,
 
@@ -96,6 +101,10 @@ export const useAppStore = create<AppState>()(
           lastChangeNote: note,
         })),
 
+      // Cap the stored transcript so prompts and localStorage stay bounded.
+      addChatMessage: (msg) =>
+        set((s) => ({ chatMessages: [...s.chatMessages, msg].slice(-60) })),
+
       setAiBusy: (op) => set({ aiBusy: op, ...(op ? { aiError: null } : {}) }),
 
       setAiError: (message) => set({ aiError: message, aiBusy: null }),
@@ -107,6 +116,7 @@ export const useAppStore = create<AppState>()(
           project: null,
           tasks: [],
           lastChangeNote: null,
+          chatMessages: [],
           aiBusy: null,
           aiError: null,
         }),
@@ -118,6 +128,7 @@ export const useAppStore = create<AppState>()(
         draftProject: s.draftProject,
         project: s.project,
         tasks: s.tasks,
+        chatMessages: s.chatMessages,
       }),
     }
   )

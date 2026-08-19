@@ -12,6 +12,7 @@ import { generatePlan } from "@/lib/ai-client";
 import IntentionInput from "@/components/IntentionInput";
 import ProjectEditor from "@/components/ProjectEditor";
 import NextAction from "@/components/NextAction";
+import ChatPanel from "@/components/ChatPanel";
 import { DoneList, TodoList } from "@/components/TaskList";
 import UpdateBox from "@/components/UpdateBox";
 
@@ -135,6 +136,7 @@ function WorkScreen() {
       <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-8">
           <NextAction task={next} onComplete={completeTask} />
+          <ChatPanel />
           <UpdateBox />
           {/* Next Action is todo[0]; the list below shows what comes after. */}
           <TodoList tasks={todo.slice(1)} onComplete={completeTask} />

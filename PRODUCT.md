@@ -344,7 +344,11 @@ The user should not need to inspect a long plan to understand what to do next.
 
 ### 6. Execute
 
-The user performs the task and marks it as completed.
+The user can work on the current task through chat or outside the application.
+
+The chat has access to the existing Project context, so the user does not need to explain the project again.
+
+Relevant progress or changes from the conversation can update the Project context and remaining plan.
 
 Completed tasks move into Done.
 
@@ -503,6 +507,8 @@ The plan should account for the deadline rather than simply generate a generic c
 ## 4. Next Action
 
 The Next Action should be the most visually important element.
+
+A project-aware chat input is available below the Next Action, allowing the user to continue working without re-explaining the project context.
 
 Example:
 
@@ -774,6 +780,7 @@ The two-day MVP should support the complete core loop:
 * Estimated task durations
 * Basic time planning
 * Clear Next Action
+* Project-aware chat for working on the current task
 * Todo
 * Mark task as completed
 * Done
