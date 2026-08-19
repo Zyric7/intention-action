@@ -28,15 +28,15 @@ export default function IntentionInput() {
         What are you trying to accomplish?
       </h1>
       <p className="mt-2 text-stone-500">
-        Describe it naturally — goal, deadline, must-haves, limits. I’ll help you
-        figure out what to do next.
+        Describe it naturally — the goal and anything that matters to you. I’ll
+        help you figure out what to do next.
       </p>
 
       <textarea
         autoFocus
         rows={5}
         className="mt-6 w-full resize-none rounded-xl border border-stone-200 bg-white p-4 text-base shadow-sm placeholder-stone-400 focus:border-stone-400 focus:outline-none"
-        placeholder="I want to build a working AI Product Builder demo within two days. It should include Todo and Done, remember my requirements…"
+        placeholder="I want to build a working AI Product Builder demo. It should include Todo and Done, remember my requirements…"
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {

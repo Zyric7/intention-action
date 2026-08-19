@@ -98,3 +98,9 @@ Intention Action is built in an AI-assisted workflow. This log records the meani
   tightening was needed: the model initially stopped scheduling even
   deadline projects until planned times were made explicitly mandatory for
   time-bound plans).
+- Follow-up fixes to the same direction: deadline-free plans no longer carry
+  routine estimates on every task (an estimate now appears only when knowing
+  the duration genuinely helps), and the intention screen's copy and
+  placeholder no longer foreground deadlines. Deployment hygiene: added
+  .vercelignore after an audit showed the Vercel CLI uploads .env.vercel
+  (it does not honor .gitignore); the tainted deployment was removed.

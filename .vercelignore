@@ -1,0 +1,4 @@
+# The Vercel CLI does not honor .gitignore for uploads; without this file it
+# only excludes a few built-in names (.env.local matched, .env.vercel did not).
+.env*
+.vercel
