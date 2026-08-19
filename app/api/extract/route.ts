@@ -3,6 +3,9 @@ import { completeJson } from "@/lib/llm";
 import { EXTRACT_SYSTEM, extractUser } from "@/lib/prompts";
 import { coerceProjectDraft } from "@/lib/coerce";
 
+// LLM calls can take 20–30s; the serverless default (10s) would cut them off.
+export const maxDuration = 60;
+
 // POST { intention: string, now: string } → ProjectDraft
 export async function POST(req: Request) {
   let intention = "";

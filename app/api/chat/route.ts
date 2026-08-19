@@ -4,6 +4,9 @@ import { chatContext } from "@/lib/prompts";
 import { minutesBetween } from "@/lib/time";
 import type { Project } from "@/lib/types";
 
+// LLM calls can take 20–30s; the serverless default (10s) would cut them off.
+export const maxDuration = 60;
+
 // POST { messages, project, nextAction, pendingTitles, completedTitles, now }
 //   → { reply: string, contextUpdate: string }
 export async function POST(req: Request) {

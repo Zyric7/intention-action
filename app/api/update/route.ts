@@ -5,6 +5,9 @@ import { minutesBetween } from "@/lib/time";
 import { coerceStringList, coerceTaskDrafts, mergeProjectUpdate } from "@/lib/coerce";
 import type { Project, TaskDraft } from "@/lib/types";
 
+// LLM calls can take 20–30s; the serverless default (10s) would cut them off.
+export const maxDuration = 60;
+
 // POST { update: string, project: Project, completed: [], pending: [], now: string }
 //   → { project: ProjectDraft, tasks: TaskDraft[], note: string }
 export async function POST(req: Request) {

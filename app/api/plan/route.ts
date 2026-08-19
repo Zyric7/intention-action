@@ -4,6 +4,9 @@ import { PLAN_SYSTEM, planUser } from "@/lib/prompts";
 import { minutesBetween } from "@/lib/time";
 import { coerceTaskDrafts } from "@/lib/coerce";
 
+// LLM calls can take 20–30s; the serverless default (10s) would cut them off.
+export const maxDuration = 60;
+
 // POST { project: Project, now: string } → { tasks: TaskDraft[] }
 export async function POST(req: Request) {
   let project: unknown = null;
