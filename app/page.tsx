@@ -68,7 +68,11 @@ function ConfirmScreen() {
       </p>
 
       <div className="mt-6 rounded-2xl bg-stone-100 p-6">
-        <ProjectEditor project={draft} onEdit={editDraftProject} />
+        {/* Freeze edits while the plan is being generated so the confirmed
+            project cannot drift from the plan's input. */}
+        <fieldset disabled={aiBusy !== null} className="min-w-0">
+          <ProjectEditor project={draft} onEdit={editDraftProject} />
+        </fieldset>
       </div>
 
       {aiError && <p className="mt-3 text-sm text-red-600">{aiError}</p>}
@@ -77,7 +81,8 @@ function ConfirmScreen() {
         <button
           type="button"
           onClick={reset}
-          className="text-sm text-stone-400 hover:text-stone-600"
+          disabled={aiBusy !== null}
+          className="text-sm text-stone-400 hover:text-stone-600 disabled:opacity-40"
         >
           Start over
         </button>
@@ -99,6 +104,10 @@ function WorkScreen() {
   const project = useAppStore((s) => s.project);
   const tasks = useAppStore((s) => s.tasks);
   const { completeTask, reopenTask, editProject, reset } = useAppStore();
+  // While a chat/update request is in flight, block every state-changing
+  // control so the request's snapshot cannot go stale (no lost edits,
+  // duplicated tasks, or post-reset resurrection).
+  const busy = useAppStore((s) => s.aiBusy) !== null;
 
   if (!project) return <IntentionInput />;
 
@@ -116,7 +125,8 @@ function WorkScreen() {
           onClick={() => {
             if (window.confirm("Start over? This clears the current project and plan.")) reset();
           }}
-          className="text-sm text-stone-400 hover:text-stone-600"
+          disabled={busy}
+          className="text-sm text-stone-400 hover:text-stone-600 disabled:opacity-40"
         >
           Start over
         </button>
@@ -135,12 +145,12 @@ function WorkScreen() {
           stretch the track and break the page proportions. */}
       <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-8">
-          <NextAction task={next} onComplete={completeTask} />
+          <NextAction task={next} onComplete={completeTask} disabled={busy} />
           <ChatPanel />
           <UpdateBox />
           {/* Next Action is todo[0]; the list below shows what comes after. */}
-          <TodoList tasks={todo.slice(1)} onComplete={completeTask} />
-          <DoneList tasks={done} onReopen={reopenTask} />
+          <TodoList tasks={todo.slice(1)} onComplete={completeTask} disabled={busy} />
+          <DoneList tasks={done} onReopen={reopenTask} disabled={busy} />
         </div>
 
         <aside className="rounded-2xl bg-stone-100 p-5 md:sticky md:top-8 md:self-start">
@@ -151,7 +161,9 @@ function WorkScreen() {
             What I currently understand. Edit anything — future plans respect it.
           </p>
           <div className="mt-4">
-            <ProjectEditor project={project} onEdit={editProject} compact />
+            <fieldset disabled={busy} className="min-w-0">
+              <ProjectEditor project={project} onEdit={editProject} compact />
+            </fieldset>
           </div>
         </aside>
       </div>

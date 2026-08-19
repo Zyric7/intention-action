@@ -88,6 +88,7 @@ Return ONLY a JSON object with exactly this shape:
     "preferences": string[],
     "successCriteria": string[]
   },
+  "planChanged": boolean,       // false when the remaining plan needs no change at all
   "tasks": [
     ${TASK_SHAPE}
   ],
@@ -103,7 +104,8 @@ Rules for updating the project memory:
 - Never pretend uncertain information is known.
 
 Rules for the remaining plan:
-- "tasks" is the complete replacement for the REMAINING (not yet completed) plan only. Never include completed work — it is preserved automatically.
+- First decide "planChanged". Set it to false when the update affects only the project memory (e.g. a renamed title or clarified purpose) and every remaining task, its order, and its planned times can stay exactly as they are — the current remaining plan is then kept unchanged and "tasks" is ignored (return []). Set it to true whenever any remaining task must be added, removed, reworded, re-estimated, reordered, or rescheduled.
+- When "planChanged" is true, "tasks" is the complete replacement for the REMAINING (not yet completed) plan only. Never include completed work — it is preserved automatically.
 - Avoid rebuilding the plan unnecessarily: keep remaining tasks that are unaffected by the change (same title, estimate, reason), adjusting only their order and planned times when needed.
 - If the user reports a remaining task as already finished, put its EXACT title (copied verbatim from the input) in "completedTitles" and leave it out of "tasks" — it will be moved to Done automatically. Never list the same task in both. Mention it in "note".
 ${PLAN_RULES}

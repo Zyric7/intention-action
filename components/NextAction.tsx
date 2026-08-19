@@ -7,9 +7,13 @@ import { formatMinutes, formatTimeRange, dayLabel } from "@/lib/time";
 export default function NextAction({
   task,
   onComplete,
+  disabled = false,
 }: {
   task: Task | null;
   onComplete: (id: string) => void;
+  // While a chat/update request is in flight, completing tasks must wait so
+  // the in-flight snapshot cannot go stale.
+  disabled?: boolean;
 }) {
   if (!task) {
     return (
@@ -50,7 +54,8 @@ export default function NextAction({
       <button
         type="button"
         onClick={() => onComplete(task.id)}
-        className="mt-5 rounded-lg bg-white px-4 py-2 text-sm font-medium text-stone-900 transition-colors hover:bg-stone-100"
+        disabled={disabled}
+        className="mt-5 rounded-lg bg-white px-4 py-2 text-sm font-medium text-stone-900 transition-colors hover:bg-stone-100 disabled:opacity-40"
       >
         Mark as done
       </button>

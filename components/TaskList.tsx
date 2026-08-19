@@ -8,9 +8,11 @@ import { completedWorkMinutes, dayLabel, formatMinutes, formatTimeRange } from "
 export function TodoList({
   tasks,
   onComplete,
+  disabled = false,
 }: {
   tasks: Task[]; // pending, ordered; first item is the Next Action shown above
   onComplete: (id: string) => void;
+  disabled?: boolean; // block completions while a chat/update is in flight
 }) {
   const groups = groupByDay(tasks);
   return (
@@ -34,7 +36,8 @@ export function TodoList({
                     type="button"
                     aria-label={`Mark ${t.title} as done`}
                     onClick={() => onComplete(t.id)}
-                    className="h-4 w-4 shrink-0 rounded-full border border-stone-300 transition-colors hover:border-emerald-500 hover:bg-emerald-50"
+                    disabled={disabled}
+                    className="h-4 w-4 shrink-0 rounded-full border border-stone-300 transition-colors hover:border-emerald-500 hover:bg-emerald-50 disabled:opacity-40 disabled:hover:border-stone-300 disabled:hover:bg-transparent"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{t.title}</p>
@@ -57,9 +60,11 @@ export function TodoList({
 export function DoneList({
   tasks,
   onReopen,
+  disabled = false,
 }: {
   tasks: Task[]; // completed, most recent first
   onReopen: (id: string) => void;
+  disabled?: boolean; // block reopening while a chat/update is in flight
 }) {
   return (
     <section>
@@ -79,7 +84,8 @@ export function DoneList({
                   aria-label={`Reopen ${t.title}`}
                   title="Reopen"
                   onClick={() => onReopen(t.id)}
-                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white"
+                  disabled={disabled}
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-[10px] text-white disabled:opacity-40"
                 >
                   ✓
                 </button>

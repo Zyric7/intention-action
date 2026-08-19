@@ -3,7 +3,7 @@ import { completeJson } from "@/lib/llm";
 import { UPDATE_SYSTEM, updateUser } from "@/lib/prompts";
 import { minutesBetween } from "@/lib/time";
 import { coerceStringList, coerceTaskDrafts, mergeProjectUpdate } from "@/lib/coerce";
-import type { Project } from "@/lib/types";
+import type { Project, TaskDraft } from "@/lib/types";
 
 // POST { update: string, project: Project, completed: [], pending: [], now: string }
 //   → { project: ProjectDraft, tasks: TaskDraft[], note: string }
@@ -44,21 +44,27 @@ export async function POST(req: Request) {
       )
     )) as Record<string, unknown>;
 
-    // A malformed remaining plan must fail loudly, not silently erase pending
-    // tasks. An explicit empty array is a valid "nothing left to do".
-    const rawTasks = raw?.tasks;
-    if (!Array.isArray(rawTasks)) {
-      return NextResponse.json(
-        { error: "AI returned a malformed plan; nothing was changed. Please try again." },
-        { status: 502 }
-      );
-    }
-    const tasks = coerceTaskDrafts(rawTasks);
-    if (rawTasks.length > 0 && tasks.length === 0) {
-      return NextResponse.json(
-        { error: "AI returned a malformed plan; nothing was changed. Please try again." },
-        { status: 502 }
-      );
+    // planChanged: false → memory-only update; tasks: null tells the client
+    // to keep its existing pending task objects untouched. Absent defaults to
+    // true (the conservative full-replacement path).
+    let tasks: TaskDraft[] | null = null;
+    if (raw?.planChanged !== false) {
+      // A malformed remaining plan must fail loudly, not silently erase
+      // pending tasks. An explicit empty array is a valid "nothing left".
+      const rawTasks = raw?.tasks;
+      if (!Array.isArray(rawTasks)) {
+        return NextResponse.json(
+          { error: "AI returned a malformed plan; nothing was changed. Please try again." },
+          { status: 502 }
+        );
+      }
+      tasks = coerceTaskDrafts(rawTasks);
+      if (rawTasks.length > 0 && tasks.length === 0) {
+        return NextResponse.json(
+          { error: "AI returned a malformed plan; nothing was changed. Please try again." },
+          { status: 502 }
+        );
+      }
     }
 
     const merged = mergeProjectUpdate(project, raw?.project);

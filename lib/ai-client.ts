@@ -28,7 +28,8 @@ export async function generatePlan(project: Project): Promise<Task[]> {
 
 export interface UpdateResult {
   project: Project;
-  pendingTasks: Task[];
+  // null = memory-only update: keep the existing pending task objects as-is.
+  pendingTasks: Task[] | null;
   // Existing pending tasks the user reported as finished in the update
   // message; the caller marks them completed so they move to Done.
   completedTaskIds: string[];
@@ -60,7 +61,7 @@ export async function applyProjectUpdate(
 
   const data = await post<{
     project: ProjectDraft;
-    tasks: TaskDraft[];
+    tasks: TaskDraft[] | null;
     completedTitles?: string[];
     note: string;
   }>("/api/update", { update: message, project, completed, pending, now: nowWithOffset() });
@@ -74,13 +75,16 @@ export async function applyProjectUpdate(
   return {
     project: { ...data.project, id: project.id, createdAt: project.createdAt, updatedAt: stamp },
     completedTaskIds,
-    pendingTasks: data.tasks.map((t) => ({
-      ...t,
-      id: crypto.randomUUID(),
-      projectId: project.id,
-      status: "pending" as const,
-      createdAt: stamp,
-    })),
+    pendingTasks:
+      data.tasks === null
+        ? null
+        : data.tasks.map((t) => ({
+            ...t,
+            id: crypto.randomUUID(),
+            projectId: project.id,
+            status: "pending" as const,
+            createdAt: stamp,
+          })),
     note: data.note,
   };
 }

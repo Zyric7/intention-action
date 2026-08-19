@@ -28,8 +28,9 @@ interface AppState {
   completeTask: (id: string) => void;
   reopenTask: (id: string) => void;
   // Applies an /api/update result: replaces project memory and all pending
-  // tasks; completed tasks are always preserved untouched.
-  applyUpdateResult: (project: Project, pendingTasks: Task[], note: string) => void;
+  // tasks; completed tasks are always preserved untouched. pendingTasks null
+  // = memory-only update: the task collection is left entirely as-is.
+  applyUpdateResult: (project: Project, pendingTasks: Task[] | null, note: string) => void;
   addChatMessage: (msg: ChatMessage) => void;
   setAiBusy: (op: AiOperation | null) => void;
   setAiError: (message: string | null) => void;
@@ -97,7 +98,10 @@ export const useAppStore = create<AppState>()(
       applyUpdateResult: (project, pendingTasks, note) =>
         set((s) => ({
           project,
-          tasks: [...s.tasks.filter((t) => t.status === "completed"), ...pendingTasks],
+          tasks:
+            pendingTasks === null
+              ? s.tasks
+              : [...s.tasks.filter((t) => t.status === "completed"), ...pendingTasks],
           lastChangeNote: note,
         })),
 
