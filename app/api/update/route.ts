@@ -16,6 +16,7 @@ export async function POST(req: Request) {
   let completed: unknown = [];
   let pending: unknown = [];
   let now = "";
+  let search = false;
   try {
     const body = await req.json();
     update = typeof body.update === "string" ? body.update.trim() : "";
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
     completed = Array.isArray(body.completed) ? body.completed : [];
     pending = Array.isArray(body.pending) ? body.pending : [];
     now = typeof body.now === "string" ? body.now : "";
+    search = body.search === true;
   } catch {
     // fall through to validation error
   }
@@ -44,7 +46,8 @@ export async function POST(req: Request) {
         JSON.stringify(pending, null, 2),
         now,
         project.deadline ? minutesBetween(now, project.deadline) : null
-      )
+      ),
+      { search }
     )) as Record<string, unknown>;
 
     // planChanged: false → memory-only update; tasks: null tells the client

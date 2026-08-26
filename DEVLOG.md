@@ -55,6 +55,19 @@ meaningful product changes, fixes, and decisions — not every commit.
 - Deployment hygiene: the Vercel CLI ignores .gitignore and had uploaded a
   local env file into the deployment source. Added .vercelignore, deleted
   the affected deployment, rotated the credential.
+
+## 2026-08-27
+
+- User-controlled Web Search switch on all AI requests, after Qwen invented
+  technical details (a nonexistent SMAPI command and config file) when
+  answering from closed-book knowledge. The user decides — no automatic
+  routing. Off keeps the request byte-identical to previous behavior; On
+  forces DashScope web search. Debugging surfaced a provider quirk: sending
+  enable_thinking (even false) silently disables enable_search, so the two
+  parameters are mutually exclusive per request. Verified: On answered a
+  current-version question with retrieved, dated facts and the correct
+  official URL; Off gave the fast parametric answer. Search improves but
+  does not guarantee accuracy on niche technical topics.
 - Product direction: actions are designed for real executability and low
   activation cost — specific, sequenced, startable from their own wording
   without further "how?" questions, and sized around a single concrete

@@ -16,7 +16,8 @@ export type LlmMessage = { role: "user" | "assistant"; content: string };
 
 export async function completeJson(
   system: string,
-  user: string | LlmMessage[]
+  user: string | LlmMessage[],
+  opts: { search?: boolean } = {}
 ): Promise<unknown> {
   const key = process.env.DASHSCOPE_API_KEY?.trim();
   if (!key) {
@@ -33,9 +34,15 @@ export async function completeJson(
       },
       body: JSON.stringify({
         model: MODEL,
-        // Hybrid reasoning models must not spend tokens thinking here: our
-        // structured prompts don't need it and it multiplies latency.
-        enable_thinking: false,
+        // User-controlled Web Search switch. DashScope quirk (verified):
+        // sending enable_thinking — even false — silently disables
+        // enable_search, so the two are mutually exclusive here. qwen-plus
+        // does not think by default, so omitting enable_thinking when
+        // searching is safe. When the switch is off, the body is identical
+        // to the previous behavior.
+        ...(opts.search
+          ? { enable_search: true, search_options: { forced_search: true } }
+          : { enable_thinking: false }),
         messages: [
           { role: "system", content: system },
           ...(typeof user === "string" ? [{ role: "user", content: user }] : user),

@@ -12,6 +12,9 @@ interface AppState {
   // Confirmed project — the single authoritative project memory.
   project: Project | null;
   tasks: Task[];
+  // User-controlled Web Search switch: when on, AI requests may use web
+  // search. A preference, so it survives Start over.
+  webSearch: boolean;
   // AI's one-line summary of what the last context update changed (transient).
   lastChangeNote: string | null;
   // Project-aware chat transcript. Continuous across task changes; only a
@@ -32,6 +35,7 @@ interface AppState {
   // = memory-only update: the task collection is left entirely as-is.
   applyUpdateResult: (project: Project, pendingTasks: Task[] | null, note: string) => void;
   addChatMessage: (msg: ChatMessage) => void;
+  toggleWebSearch: () => void;
   setAiBusy: (op: AiOperation | null) => void;
   setAiError: (message: string | null) => void;
   reset: () => void;
@@ -46,6 +50,7 @@ export const useAppStore = create<AppState>()(
       draftProject: null,
       project: null,
       tasks: [],
+      webSearch: false,
       lastChangeNote: null,
       chatMessages: [],
       aiBusy: null,
@@ -109,6 +114,8 @@ export const useAppStore = create<AppState>()(
       addChatMessage: (msg) =>
         set((s) => ({ chatMessages: [...s.chatMessages, msg].slice(-60) })),
 
+      toggleWebSearch: () => set((s) => ({ webSearch: !s.webSearch })),
+
       setAiBusy: (op) => set({ aiBusy: op, ...(op ? { aiError: null } : {}) }),
 
       setAiError: (message) => set({ aiError: message, aiBusy: null }),
@@ -133,6 +140,7 @@ export const useAppStore = create<AppState>()(
         project: s.project,
         tasks: s.tasks,
         chatMessages: s.chatMessages,
+        webSearch: s.webSearch,
       }),
     }
   )

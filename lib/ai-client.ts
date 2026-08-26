@@ -1,11 +1,16 @@
 // Client-side wrappers for the AI API routes.
 
+import { useAppStore } from "./store";
 import type { ChatMessage, Project, ProjectDraft, Task, TaskDraft } from "./types";
+
+// The user-controlled Web Search switch, read at request time.
+const searchOn = () => useAppStore.getState().webSearch;
 
 export async function extractProject(intention: string): Promise<Project> {
   const draft = await post<ProjectDraft>("/api/extract", {
     intention,
     now: nowWithOffset(),
+    search: searchOn(),
   });
   const stamp = new Date().toISOString();
   return { ...draft, id: crypto.randomUUID(), createdAt: stamp, updatedAt: stamp };
@@ -15,6 +20,7 @@ export async function generatePlan(project: Project): Promise<Task[]> {
   const { tasks } = await post<{ tasks: TaskDraft[] }>("/api/plan", {
     project,
     now: nowWithOffset(),
+    search: searchOn(),
   });
   const stamp = new Date().toISOString();
   return tasks.map((t) => ({
@@ -65,7 +71,14 @@ export async function applyProjectUpdate(
     tasks: TaskDraft[] | null;
     completedTitles?: string[];
     note: string;
-  }>("/api/update", { update: message, project, completed, pending, now: nowWithOffset() });
+  }>("/api/update", {
+    update: message,
+    project,
+    completed,
+    pending,
+    now: nowWithOffset(),
+    search: searchOn(),
+  });
 
   const reported = (data.completedTitles ?? []).map((t) => t.trim().toLowerCase());
   const completedTaskIds = allTasks
@@ -116,6 +129,7 @@ export async function chatWithProject(
     pendingTitles: pending.slice(1).map((t) => t.title),
     completedTitles: allTasks.filter((t) => t.status === "completed").map((t) => t.title),
     now: nowWithOffset(),
+    search: searchOn(),
   });
 }
 

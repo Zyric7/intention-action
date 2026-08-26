@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { extractProject } from "@/lib/ai-client";
+import SearchToggle from "./SearchToggle";
 
 // Phase 1: the user describes what they want to achieve in natural language.
 export default function IntentionInput() {
@@ -46,14 +47,17 @@ export default function IntentionInput() {
 
       {aiError && <p className="mt-3 text-sm text-red-600">{aiError}</p>}
 
-      <button
-        type="button"
-        onClick={submit}
-        disabled={!text.trim() || aiBusy !== null}
-        className="mt-4 self-end rounded-lg bg-stone-900 px-5 py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-40"
-      >
-        {aiBusy === "extract" ? "Understanding…" : "Turn this into a plan"}
-      </button>
+      <div className="mt-4 flex items-center justify-between">
+        <SearchToggle />
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!text.trim() || aiBusy !== null}
+          className="rounded-lg bg-stone-900 px-5 py-2.5 text-sm font-medium text-white transition-opacity disabled:opacity-40"
+        >
+          {aiBusy === "extract" ? "Understanding…" : "Turn this into a plan"}
+        </button>
+      </div>
     </main>
   );
 }

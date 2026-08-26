@@ -11,10 +11,12 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   let project: unknown = null;
   let now = "";
+  let search = false;
   try {
     const body = await req.json();
     project = body.project ?? null;
     now = typeof body.now === "string" ? body.now : "";
+    search = body.search === true;
   } catch {
     // fall through to validation error
   }
@@ -35,7 +37,8 @@ export async function POST(req: Request) {
         JSON.stringify(project, null, 2),
         now,
         deadline ? minutesBetween(now, deadline) : null
-      )
+      ),
+      { search }
     );
     const tasks = coerceTaskDrafts(raw);
     if (tasks.length === 0) {

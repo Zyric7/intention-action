@@ -16,6 +16,7 @@ export async function POST(req: Request) {
   let pendingTitles: string[] = [];
   let completedTitles: string[] = [];
   let now = "";
+  let search = false;
   try {
     const body = await req.json();
     messages = Array.isArray(body.messages)
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
       ? body.completedTitles.filter((t: unknown): t is string => typeof t === "string")
       : [];
     now = typeof body.now === "string" ? body.now : "";
+    search = body.search === true;
   } catch {
     // fall through to validation error
   }
@@ -58,7 +60,7 @@ export async function POST(req: Request) {
       now,
       project.deadline ? minutesBetween(now, project.deadline) : null
     );
-    const raw = (await completeJson(system, messages)) as Record<string, unknown>;
+    const raw = (await completeJson(system, messages, { search })) as Record<string, unknown>;
     const reply = typeof raw?.reply === "string" ? raw.reply.trim() : "";
     if (!reply) {
       return NextResponse.json({ error: "AI returned an empty reply. Please try again." }, { status: 502 });

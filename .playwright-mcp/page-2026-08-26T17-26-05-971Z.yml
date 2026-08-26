@@ -1,0 +1,5 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]: Loading…
+  - contentinfo [ref=e3]:
+    - link "Development log" [ref=e4] [cursor=pointer]:
+      - /url: /devlog

@@ -65,5 +65,8 @@
   defaults in lib/llm.ts). SILICONFLOW_* values are a manual fallback
   only — never switched automatically.
 - LLM calls take 5–30s; route maxDuration is 60s; thinking mode stays off.
+- Web search is user-toggled (webSearch flag → enable_search). DashScope
+  quirk: sending enable_thinking (even false) silently disables
+  enable_search — the two are mutually exclusive per request.
 - Env values are trimmed in code: stray whitespace in a key or URL makes
   fetch fail instantly and looks exactly like a network block.

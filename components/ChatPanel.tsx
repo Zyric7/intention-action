@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { applyProjectUpdate, chatWithProject } from "@/lib/ai-client";
+import SearchToggle from "./SearchToggle";
 
 // Project-aware chat below the Next Action: work on the current task without
 // re-explaining the project. The transcript survives task completions and
@@ -72,9 +73,12 @@ export default function ChatPanel() {
 
   return (
     <section className="rounded-xl bg-white p-4 ring-1 ring-stone-200">
-      <label className="text-xs font-semibold uppercase tracking-wider text-stone-500">
-        Work on it here
-      </label>
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+          Work on it here
+        </label>
+        <SearchToggle />
+      </div>
       {chatMessages.length === 0 ? (
         <p className="mt-2 text-sm text-stone-400">
           Ask anything — I already know this project’s goal, constraints, and plan.

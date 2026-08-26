@@ -1,0 +1,13 @@
+- generic [ref=e1]:
+  - main [ref=e5]:
+    - heading "What are you trying to accomplish?" [level=1] [ref=e6]
+    - paragraph [ref=e7]: Describe it naturally — the goal and anything that matters to you. I’ll help you figure out what to do next.
+    - textbox "I want to build a working AI Product Builder demo. It should include Todo and Done, remember my requirements…" [ref=e8]
+    - generic [ref=e9]:
+      - 'button "Web search: On" [active] [pressed] [ref=e22]'
+      - button "Turn this into a plan" [disabled] [ref=e11]
+  - contentinfo [ref=e3]:
+    - link "Development log" [ref=e4] [cursor=pointer]:
+      - /url: /devlog
+  - button "Open Next.js Dev Tools" [ref=e17] [cursor=pointer]
+  - alert [ref=e21]
