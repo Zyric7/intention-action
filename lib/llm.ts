@@ -10,7 +10,7 @@
 const BASE_URL = (
   process.env.DASHSCOPE_BASE_URL ?? "https://dashscope.aliyuncs.com/compatible-mode/v1"
 ).trim();
-const MODEL = (process.env.DASHSCOPE_MODEL ?? "qwen-plus").trim();
+const MODEL = (process.env.DASHSCOPE_MODEL ?? "qwen3.7-plus").trim();
 
 export type LlmMessage = { role: "user" | "assistant"; content: string };
 
@@ -34,15 +34,16 @@ export async function completeJson(
       },
       body: JSON.stringify({
         model: MODEL,
-        // User-controlled Web Search switch. DashScope quirk (verified):
-        // sending enable_thinking — even false — silently disables
-        // enable_search, so the two are mutually exclusive here. qwen-plus
-        // does not think by default, so omitting enable_thinking when
-        // searching is safe. When the switch is off, the body is identical
-        // to the previous behavior.
+        // qwen3.7 thinks by default; our structured prompts don't need it
+        // and it multiplies latency. Unlike the older qwen-plus generation,
+        // qwen3.7 supports enable_thinking:false together with enable_search
+        // (verified), so thinking stays off in both modes.
+        enable_thinking: false,
+        // User-controlled Web Search switch: when off, no search parameters
+        // are sent at all.
         ...(opts.search
           ? { enable_search: true, search_options: { forced_search: true } }
-          : { enable_thinking: false }),
+          : {}),
         messages: [
           { role: "system", content: system },
           ...(typeof user === "string" ? [{ role: "user", content: user }] : user),

@@ -68,6 +68,14 @@ meaningful product changes, fixes, and decisions — not every commit.
   current-version question with retrieved, dated facts and the correct
   official URL; Off gave the fast parametric answer. Search improves but
   does not guarantee accuracy on niche technical topics.
+- Model upgraded from qwen-plus to qwen3.7-plus after investigating the
+  quality gap against Qwen Web: the qwen-plus alias family has no snapshot
+  newer than 2025-12-01, a full generation behind. qwen3.7 thinks by
+  default (enable_thinking:false is now always sent) and supports thinking
+  off together with web search, so the old mutual-exclusion workaround is
+  gone. Verified: both planning flows unchanged, and the searched answer to
+  the SMAPI question that previously invented a nonexistent CLI now gives
+  the real dotnet-template workflow.
 - Product direction: actions are designed for real executability and low
   activation cost — specific, sequenced, startable from their own wording
   without further "how?" questions, and sized around a single concrete
